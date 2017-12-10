@@ -22,6 +22,10 @@ public class SudokuUtils {
                 .collect(joining("\n"));
     }
 
+    public static long countOpen(Integer[][] values) {
+        return stream(values).mapToLong(line -> stream(line).filter(Objects::nonNull).count()).sum();
+    }
+
     public static String readFile(String fileName) {
         try {
             return IOUtils.toString(getSystemResourceAsStream(fileName));

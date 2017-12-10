@@ -16,9 +16,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
 import static org.junit.Assert.*;
-import static self.ed.SudokuUtils.asString;
-import static self.ed.SudokuUtils.parseFile;
-import static self.ed.SudokuUtils.readFile;
+import static self.ed.SudokuUtils.*;
 
 public class SudokuGeneratorTest {
 
@@ -29,6 +27,14 @@ public class SudokuGeneratorTest {
 //        SudokuGenerator sudoku = new SudokuGenerator();
 //        assertEquals(asString(output), asString(sudoku.generate(input)));
 //    }
+
+    @Test
+    public void testMinimize() {
+        Integer[][] input = parseFile(readFile("input-30.txt"));
+        Integer[][] output = parseFile(readFile("input-30.txt"));
+        SudokuGenerator sudoku = new SudokuGenerator(9);
+        assertEquals(asString(output), asString(sudoku.minimize(input)));
+    }
 
     @Test
     public void testGenerateComplex() {
@@ -53,9 +59,22 @@ public class SudokuGeneratorTest {
         AtomicLong openMin = new AtomicLong(Long.MAX_VALUE);
         Map<Long, Long> counts = Stream.generate(() -> {
             System.out.println("Sudoku " + sudokuNumber.incrementAndGet());
-            Future<Long> future = executor.submit(() -> {
-                Integer[][] result = generator.generate();
-                Long openCount = stream(result).mapToLong(line -> stream(line).filter(Objects::nonNull).count()).sum();
+            Future<Integer[][]> generateFuture = executor.submit(() -> generator.generate());
+            try {
+                Integer[][] result = generateFuture.get(2, SECONDS);
+                Long openCount = countOpen(result);
+                if (openCount <= 25) {
+                    Integer[][] res = result;
+                    Future<Integer[][]> minimizeFuture = executor.submit(() -> generator.minimize(res));
+                    try {
+                        result = minimizeFuture.get(10, SECONDS);
+                    } catch (Exception e) {
+                        minimizeFuture.cancel(true);
+                        System.out.println("Cannot minimize: " + openCount);
+                        System.out.println(asString(result));
+                        return 200L;
+                    }
+                }
                 openMin.getAndUpdate(old -> Math.min(old, openCount));
                 System.out.println("Open: " + openCount + "/" + openMin.get());
                 if (openCount < 24) {
@@ -63,14 +82,11 @@ public class SudokuGeneratorTest {
                 }
                 System.out.println("------------------");
                 return openCount;
-            });
-            try {
-                return future.get(2, SECONDS);
             } catch (Exception e) {
-                future.cancel(true);
+                generateFuture.cancel(true);
                 return 100L;
             }
-        }).limit(10).collect(groupingBy(Function.identity(), TreeMap::new, counting()));
+        }).limit(500).collect(groupingBy(Function.identity(), TreeMap::new, counting()));
 
 
         System.out.println(counts);

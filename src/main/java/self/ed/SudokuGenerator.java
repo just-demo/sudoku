@@ -3,18 +3,18 @@ package self.ed;
 import self.ed.exception.MultipleSolutionsException;
 import self.ed.exception.NoSolutionException;
 
-import java.util.*;
-import java.util.stream.IntStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static java.util.Comparator.comparing;
-import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 import static java.util.stream.IntStream.rangeClosed;
-import static self.ed.SudokuUtils.asString;
 import static self.ed.SudokuUtils.copy;
+import static self.ed.SudokuUtils.countOpen;
 
 public class SudokuGenerator {
     private int size;
@@ -41,7 +41,37 @@ public class SudokuGenerator {
 
 //    private int counter;
 
+    public Integer[][] minimize(Integer[][] initialValues) {
+        List<Cell> opened = new ArrayList<>();
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                if (initialValues[row][col] != null) {
+                    opened.add(new Cell(row, col, 0, emptySet()));
+                }
+            }
+        }
+
+        return opened.stream()
+                .map(cell -> {
+                    Integer[][] nextGuess = copy(initialValues);
+                    nextGuess[cell.getRow()][cell.getCol()] = null;
+                    try {
+                        new SudokuSolver(nextGuess).solve();
+                        return minimize(nextGuess);
+                    } catch (NoSolutionException | MultipleSolutionsException e) {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .min(comparing(values -> (int) SudokuUtils.countOpen(values)))
+                .orElse(initialValues);
+    }
+
     private Integer[][] generate(Integer[][] initialValues) {
+        if (countOpen(initialValues) > 25) {
+            throw new RuntimeException("To many open!");
+        }
+
         try {
             new SudokuSolver(initialValues).solve();
             return initialValues;
@@ -61,7 +91,7 @@ public class SudokuGenerator {
             }
 
             Collections.shuffle(pending);
-            for (Cell cell: pending) {
+            for (Cell cell : pending) {
                 Integer[][] nextGuess = copy(initialValues);
                 List<Integer> values = rangeClosed(1, size).boxed().collect(toList());
                 opened.stream().filter(cell::related).map(Cell::getValue).forEach(values::remove);
