@@ -2,8 +2,12 @@ package self.ed;
 
 import self.ed.exception.MultipleSolutionsException;
 import self.ed.exception.NoSolutionException;
+import self.ed.exception.TimeLimitException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
@@ -34,7 +38,7 @@ public class SudokuSolver {
 
     public Integer[][] solve() {
         if (Thread.interrupted()) {
-            throw new RuntimeException("Interrupted!"); //=============
+            throw new TimeLimitException();
         }
         Cell cell;
         while ((cell = getNextPending()) != null) {

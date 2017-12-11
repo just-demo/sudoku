@@ -1,21 +1,30 @@
 package self.ed;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.junit.Test;
+import self.ed.exception.CountLimitException;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.TreeMap;
-import java.util.concurrent.*;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import static java.nio.file.Files.createDirectories;
 import static java.util.Arrays.stream;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
-import static org.junit.Assert.*;
+import static org.apache.commons.io.FileUtils.readFileToString;
+import static org.apache.commons.io.FileUtils.writeStringToFile;
+import static org.junit.Assert.assertEquals;
 import static self.ed.SudokuUtils.*;
 
 public class SudokuGeneratorTest {
@@ -30,10 +39,34 @@ public class SudokuGeneratorTest {
 
     @Test
     public void testMinimize() {
-        Integer[][] input = parseFile(readFile("input-30.txt"));
-        Integer[][] output = parseFile(readFile("input-30.txt"));
+        Integer[][] input = parseFile(readFile("input-21.txt"));
+        Integer[][] output = parseFile(readFile("input-21.txt"));
         SudokuGenerator sudoku = new SudokuGenerator(9);
         assertEquals(asString(output), asString(sudoku.minimize(input)));
+    }
+
+    @Test
+    public void testMinimizeBulk() throws IOException {
+        SudokuGenerator sudoku = new SudokuGenerator(9);
+        Path inDir = Paths.get("/Users/user/Work/projects/sudoku/data-failed/failed");
+        Path outDir = Paths.get("/Users/user/Work/projects/sudoku/data-failed/ok");
+        createDirectories(outDir);
+        AtomicLong minimizedCount = new AtomicLong();
+        File[] files = inDir.toFile().listFiles();
+        for (File file : files) {
+            System.out.println(file.getName());
+            Integer[][] input = parseFile(readFileToString(file));
+            Integer[][] output = sudoku.minimize(input);
+            long inputCount = countOpen(input);
+            long outputCount = countOpen(output);
+            String outFile = outputCount + "-" + file.getName().split("-", 2)[1];
+            writeStringToFile(outDir.resolve(outFile).toFile(), asString(output));
+            if (outputCount != inputCount) {
+                minimizedCount.incrementAndGet();
+                System.out.println("Minimized " + file.getName() + ":" + inputCount + " => " + outputCount);
+            }
+        }
+        System.out.println("Minimized " + minimizedCount.get() + " of " + files.length);
     }
 
     @Test
@@ -51,7 +84,12 @@ public class SudokuGeneratorTest {
     }
 
     @Test
-    public void testGenerateComplex2() {
+    public void testGenerateComplex2() throws IOException {
+        Path basedDir = Paths.get("/Users/user/Work/projects/sudoku/data-" + getCurrentTime());
+        Path okDir = basedDir.resolve("ok");
+        Path failedDir = basedDir.resolve("failed");
+        createDirectories(okDir);
+        createDirectories(failedDir);
         ExecutorService executor = Executors.newSingleThreadExecutor();
         SudokuGenerator generator = new SudokuGenerator(9);
 
@@ -63,30 +101,39 @@ public class SudokuGeneratorTest {
             try {
                 Integer[][] result = generateFuture.get(2, SECONDS);
                 Long openCount = countOpen(result);
-                if (openCount <= 25) {
-                    Integer[][] res = result;
-                    Future<Integer[][]> minimizeFuture = executor.submit(() -> generator.minimize(res));
-                    try {
-                        result = minimizeFuture.get(10, SECONDS);
-                    } catch (Exception e) {
-                        minimizeFuture.cancel(true);
-                        System.out.println("Cannot minimize: " + openCount);
-                        System.out.println(asString(result));
-                        return 200L;
+//                if (openCount <= OPEN_LIMIT) { // TODO: It's always true since the generator itself limits it!!!
+                Integer[][] res = result;
+                Future<Integer[][]> minimizeFuture = executor.submit(() -> generator.minimize(res));
+                try {
+                    result = minimizeFuture.get(10, SECONDS);
+                    Long newOpenCount = countOpen(result);
+                    if (!newOpenCount.equals(openCount)) {
+                        System.out.println("Minimized: " + openCount + " => " + newOpenCount);
+                        openCount = newOpenCount;
                     }
+                } catch (Exception e) {
+                    minimizeFuture.cancel(true);
+                    System.out.println("Cannot minimize: " + openCount);
+                    Path file = failedDir.resolve(openCount + "-" + getCurrentTime() + "-" + sudokuNumber.get() + ".txt");
+                    writeStringToFile(file.toFile(), asString(result));
+                    return 300L;
                 }
-                openMin.getAndUpdate(old -> Math.min(old, openCount));
+//                }
+                Long newMin = openCount;
+                openMin.getAndUpdate(oldMin -> Math.min(oldMin, newMin));
                 System.out.println("Open: " + openCount + "/" + openMin.get());
                 if (openCount < 24) {
                     System.out.println(asString(result));
+                    Path file = okDir.resolve(openCount + "-" + getCurrentTime() + "-" + sudokuNumber.get() + ".txt");
+                    writeStringToFile(file.toFile(), asString(result));
                 }
                 System.out.println("------------------");
                 return openCount;
             } catch (Exception e) {
                 generateFuture.cancel(true);
-                return 100L;
+                return ExceptionUtils.indexOfType(e, CountLimitException.class) > -1 ? 200L : 100L;
             }
-        }).limit(500).collect(groupingBy(Function.identity(), TreeMap::new, counting()));
+        }).limit(1000).collect(groupingBy(Function.identity(), TreeMap::new, counting()));
 
 
         System.out.println(counts);
@@ -94,7 +141,9 @@ public class SudokuGeneratorTest {
 //        System.out.println(toString(result));
     }
 
-
+    private String getCurrentTime() {
+        return new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
+    }
 
     /*
 

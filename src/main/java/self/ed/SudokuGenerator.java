@@ -1,5 +1,6 @@
 package self.ed;
 
+import self.ed.exception.CountLimitException;
 import self.ed.exception.MultipleSolutionsException;
 import self.ed.exception.NoSolutionException;
 
@@ -17,6 +18,7 @@ import static self.ed.SudokuUtils.copy;
 import static self.ed.SudokuUtils.countOpen;
 
 public class SudokuGenerator {
+    public static final int OPEN_LIMIT = 28;
     private int size;
     private int blockSize;
 
@@ -51,6 +53,7 @@ public class SudokuGenerator {
             }
         }
 
+        Collections.shuffle(opened);
         return opened.stream()
                 .map(cell -> {
                     Integer[][] nextGuess = copy(initialValues);
@@ -68,8 +71,8 @@ public class SudokuGenerator {
     }
 
     private Integer[][] generate(Integer[][] initialValues) {
-        if (countOpen(initialValues) > 25) {
-            throw new RuntimeException("To many open!");
+        if (countOpen(initialValues) > OPEN_LIMIT) {
+            throw new CountLimitException();
         }
 
         try {
