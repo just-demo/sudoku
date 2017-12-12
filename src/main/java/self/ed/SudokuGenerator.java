@@ -1,7 +1,7 @@
 package self.ed;
 
 import org.apache.commons.lang3.tuple.Pair;
-import self.ed.exception.CountLimitException;
+import self.ed.exception.ComplexityLimitException;
 import self.ed.exception.MultipleSolutionsException;
 import self.ed.exception.NoSolutionException;
 
@@ -15,7 +15,6 @@ import static self.ed.SudokuUtils.copy;
 import static self.ed.SudokuUtils.countOpen;
 
 public class SudokuGenerator {
-    public static final int OPEN_LIMIT = 29;
     private int size;
     private int blockSize;
 
@@ -25,8 +24,11 @@ public class SudokuGenerator {
     }
 
     public Integer[][] generate() {
-        Integer[][] initialValues = new Integer[size][size];
-        return generate(initialValues);
+        return generate(size * size);
+    }
+
+    public Integer[][] generate(int complexityLowerLimit) {
+        return generate(new Integer[size][size], complexityLowerLimit);
     }
 
     public Integer[][] minimize(Integer[][] initialValues) {
@@ -68,9 +70,9 @@ public class SudokuGenerator {
                 .orElse(initialValues);
     }
 
-    private Integer[][] generate(Integer[][] initialValues) {
-        if (countOpen(initialValues) > OPEN_LIMIT) {
-            throw new CountLimitException();
+    private Integer[][] generate(Integer[][] initialValues, int complexityLowerLimit) {
+        if (countOpen(initialValues) > complexityLowerLimit) {
+            throw new ComplexityLimitException();
         }
 
         try {
@@ -100,7 +102,7 @@ public class SudokuGenerator {
                 for (Integer value : values) {
                     nextGuess[cell.getRow()][cell.getCol()] = value;
                     try {
-                        return generate(nextGuess);
+                        return generate(nextGuess, complexityLowerLimit);
                     } catch (NoSolutionException e2) {
                         // Our guess did not work, let's try another one
                     }
