@@ -11,9 +11,11 @@ import java.util.Set;
 
 import static java.util.Comparator.comparing;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.IntStream.rangeClosed;
 import static self.ed.SudokuUtils.copy;
+import static self.ed.SudokuUtils.countOpenDistinct;
 
 public class SudokuSolver {
     private Integer[][] result;
@@ -34,12 +36,22 @@ public class SudokuSolver {
                 pending.add(new Cell(row, col, block, values));
             }
         }
+
+//        pending.stream()
+//                .filter(cell -> cell.getValues().size() == 1)
+//                .collect(toList())
+//                .forEach(this::open);
     }
 
     public Integer[][] solve() {
         if (Thread.interrupted()) {
             throw new TimeLimitException();
         }
+
+//        if (countOpenDistinct(result) < result.length - 1) {
+//            throw new MultipleSolutionsException();
+//        }
+
         Cell cell;
         while ((cell = getNextPending()) != null) {
             if (cell.getSize() == 1) {

@@ -18,7 +18,7 @@ import static self.ed.SudokuUtils.copy;
 import static self.ed.SudokuUtils.countOpen;
 
 public class SudokuGenerator {
-    public static final int OPEN_LIMIT = 28;
+    public static final int OPEN_LIMIT = 29;
     private int size;
     private int blockSize;
 
