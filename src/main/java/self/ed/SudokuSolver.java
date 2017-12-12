@@ -5,17 +5,14 @@ import self.ed.exception.NoSolutionException;
 import self.ed.exception.TimeLimitException;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import static java.util.Collections.singleton;
 import static java.util.Comparator.comparing;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.IntStream.rangeClosed;
 import static self.ed.SudokuUtils.copy;
-import static self.ed.SudokuUtils.countOpenDistinct;
 
 public class SudokuSolver {
     private Integer[][] result;
@@ -27,20 +24,20 @@ public class SudokuSolver {
         Set<Integer> defaultValues = rangeClosed(1, size).boxed().collect(toSet());
 
         result = new Integer[size][size];
+        List<Cell> open = new ArrayList<>();
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
                 int block = blockSize * (row / blockSize) + col / blockSize;
-                Set<Integer> values = ofNullable(initialValues[row][col])
-                        .map(Collections::singleton)
-                        .orElse(defaultValues);
-                pending.add(new Cell(row, col, block, values));
+                Integer value = initialValues[row][col];
+                if (value != null) {
+                    open.add(new Cell(row, col, block, singleton(value)));
+                } else {
+                    pending.add(new Cell(row, col, block, defaultValues));
+                }
             }
         }
 
-//        pending.stream()
-//                .filter(cell -> cell.getValues().size() == 1)
-//                .collect(toList())
-//                .forEach(this::open);
+        open.forEach(this::open);
     }
 
     public Integer[][] solve() {

@@ -14,20 +14,20 @@ import static java.util.stream.Collectors.joining;
 public class SudokuUtils {
     private static final String EMPTY_VALUE = ".";
 
-    public static String asString(Integer[][] values) {
-        return stream(values)
+    public static String asString(Integer[][] matrix) {
+        return stream(matrix)
                 .map(line -> stream(line)
                         .map(cell -> Objects.toString(cell, EMPTY_VALUE))
                         .collect(joining(" ")))
                 .collect(joining("\n"));
     }
 
-    public static long countOpen(Integer[][] values) {
-        return stream(values).mapToLong(line -> stream(line).filter(Objects::nonNull).count()).sum();
+    public static long countOpen(Integer[][] matrix) {
+        return stream(matrix).mapToLong(line -> stream(line).filter(Objects::nonNull).count()).sum();
     }
 
-    public static long countOpenDistinct(Integer[][] values) {
-        return stream(values).flatMap(line -> stream(line).filter(Objects::nonNull)).distinct().count();
+    public static long countOpenDistinct(Integer[][] matrix) {
+        return stream(matrix).flatMap(line -> stream(line).filter(Objects::nonNull)).distinct().count();
     }
 
     public static String readFile(String fileName) {

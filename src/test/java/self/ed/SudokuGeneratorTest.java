@@ -28,6 +28,7 @@ import static org.junit.Assert.assertEquals;
 import static self.ed.SudokuUtils.*;
 
 public class SudokuGeneratorTest {
+    private static final Path ROOT_DIR = Paths.get("C:\\Users\\pc\\Desktop\\projects\\sudoku");
 
 //    @Test
 //    public void testGenerateSimple() {
@@ -38,18 +39,31 @@ public class SudokuGeneratorTest {
 //    }
 
     @Test
-    public void testMinimize() {
+    public void testMinimizeAlreadyMinimal() {
         Integer[][] input = parseFile(readFile("input-21.txt"));
-        Integer[][] output = parseFile(readFile("input-21.txt"));
-        SudokuGenerator sudoku = new SudokuGenerator(9);
-        assertEquals(asString(output), asString(sudoku.minimize(input)));
+        Integer[][] output = new SudokuGenerator(9).minimize(input);
+        assertEquals(asString(input), asString(output));
+    }
+
+    @Test
+    public void testMinimizeMinusOne() {
+        Integer[][] input = parseFile(readFile("input-22.txt"));
+        Integer[][] output = new SudokuGenerator(9).minimize(input);
+        assertEquals(countOpen(input) - 1, countOpen(output));
+    }
+
+    @Test
+    public void testMinimizeMinusTwo() {
+        Integer[][] input = parseFile(readFile("input-24.txt"));
+        Integer[][] output = new SudokuGenerator(9).minimize(input);
+        assertEquals(countOpen(input) - 2, countOpen(output));
     }
 
     @Test
     public void testMinimizeBulk() throws IOException {
         SudokuGenerator sudoku = new SudokuGenerator(9);
-        Path inDir = Paths.get("/Users/user/Work/projects/sudoku/data-failed/failed");
-        Path outDir = Paths.get("/Users/user/Work/projects/sudoku/data-failed/ok");
+        Path inDir = ROOT_DIR.resolve("data-failed").resolve("failed");
+        Path outDir = ROOT_DIR.resolve("data-failed").resolve("ok");
         createDirectories(outDir);
         AtomicLong minimizedCount = new AtomicLong();
         File[] files = inDir.toFile().listFiles();
@@ -85,7 +99,7 @@ public class SudokuGeneratorTest {
 
     @Test
     public void testGenerateComplex2() throws IOException {
-        Path basedDir = Paths.get("/Users/user/Work/projects/sudoku/data-" + getCurrentTime());
+        Path basedDir = ROOT_DIR.resolve("data-" + getCurrentTime());
         Path okDir = basedDir.resolve("ok");
         Path failedDir = basedDir.resolve("failed");
         createDirectories(okDir);
@@ -102,22 +116,22 @@ public class SudokuGeneratorTest {
                 Integer[][] result = generateFuture.get(2, SECONDS);
                 Long openCount = countOpen(result);
 //                if (openCount <= OPEN_LIMIT) { // TODO: It's always true since the generator itself limits it!!!
-                Integer[][] res = result;
-                Future<Integer[][]> minimizeFuture = executor.submit(() -> generator.minimize(res));
-                try {
-                    result = minimizeFuture.get(10, SECONDS);
-                    Long newOpenCount = countOpen(result);
-                    if (!newOpenCount.equals(openCount)) {
-                        System.out.println("Minimized: " + openCount + " => " + newOpenCount);
-                        openCount = newOpenCount;
-                    }
-                } catch (Exception e) {
-                    minimizeFuture.cancel(true);
-                    System.out.println("Cannot minimize: " + openCount);
-                    Path file = failedDir.resolve(openCount + "-" + getCurrentTime() + "-" + sudokuNumber.get() + ".txt");
-                    writeStringToFile(file.toFile(), asString(result));
-                    return 300L;
-                }
+//                Integer[][] res = result;
+//                Future<Integer[][]> minimizeFuture = executor.submit(() -> generator.minimize(res));
+//                try {
+//                    result = minimizeFuture.get(10, SECONDS);
+//                    Long newOpenCount = countOpen(result);
+//                    if (!newOpenCount.equals(openCount)) {
+//                        System.out.println("Minimized: " + openCount + " => " + newOpenCount);
+//                        openCount = newOpenCount;
+//                    }
+//                } catch (Exception e) {
+//                    minimizeFuture.cancel(true);
+//                    System.out.println("Cannot minimize: " + openCount);
+//                    Path file = failedDir.resolve(openCount + "-" + getCurrentTime() + "-" + sudokuNumber.get() + ".txt");
+//                    writeStringToFile(file.toFile(), asString(result));
+//                    return 300L;
+//                }
 //                }
                 Long newMin = openCount;
                 openMin.getAndUpdate(oldMin -> Math.min(oldMin, newMin));
@@ -133,7 +147,7 @@ public class SudokuGeneratorTest {
                 generateFuture.cancel(true);
                 return ExceptionUtils.indexOfType(e, CountLimitException.class) > -1 ? 200L : 100L;
             }
-        }).limit(1000).collect(groupingBy(Function.identity(), TreeMap::new, counting()));
+        }).limit(100).collect(groupingBy(Function.identity(), TreeMap::new, counting()));
 
 
         System.out.println(counts);
