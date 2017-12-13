@@ -20,7 +20,7 @@ public class Cell {
         return row == cell.row || col == cell.col || block == cell.block;
     }
 
-    public void removeValue(Integer value) {
+    public void removeCandidate(Integer value) {
         candidates.remove(value);
     }
 
@@ -32,7 +32,7 @@ public class Cell {
         return candidates;
     }
 
-    public Integer getValue() {
+    public Integer getCandidate() {
         return candidates.iterator().next();
     }
 

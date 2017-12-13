@@ -99,7 +99,7 @@ public class SudokuGenerator {
             for (Cell cell : pending) {
                 Integer[][] nextGuess = copy(initialValues);
                 List<Integer> values = new ArrayList<>(this.values);
-                open.stream().filter(cell::isRelated).map(Cell::getValue).forEach(values::remove);
+                open.stream().filter(cell::isRelated).map(Cell::getCandidate).forEach(values::remove);
                 shuffle(values);
                 for (Integer value : values) {
                     nextGuess[cell.getRow()][cell.getCol()] = value;
