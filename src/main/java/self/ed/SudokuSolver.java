@@ -15,7 +15,7 @@ import static java.util.stream.IntStream.rangeClosed;
 import static self.ed.SudokuUtils.copy;
 
 public class SudokuSolver {
-    private Integer[][] result;
+    private Integer[][] currentState;
     private List<Cell> pending = new ArrayList<>();
 
     public SudokuSolver(Integer[][] initialValues) {
@@ -23,7 +23,7 @@ public class SudokuSolver {
         int blockSize = (int) Math.sqrt(size);
         Set<Integer> values = rangeClosed(1, size).boxed().collect(toSet());
 
-        result = new Integer[size][size];
+        currentState = new Integer[size][size];
         List<Cell> open = new ArrayList<>();
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
@@ -45,20 +45,19 @@ public class SudokuSolver {
             throw new TimeLimitException();
         }
 
-//        if (countOpenDistinct(result) < result.length - 1) {
-//            throw new MultipleSolutionsException();
-//        }
-
-        Cell cell;
-        while ((cell = getNextPending()) != null) {
-            if (cell.getSize() == 1) {
+        while (!pending.isEmpty()) {
+            Cell cell = pending.get(0);
+            if (cell.countCandidates() != 1) {
+                pending.sort(comparing(Cell::countCandidates));
+                cell = pending.get(0);
+            }
+            if (cell.countCandidates() == 1) {
                 open(cell);
-            } else if (cell.getSize() > 1) {
-//                System.out.println("Guessing out of " + cell.getSize());
-//                System.out.println(asString(result));
+            } else if (cell.countCandidates() > 1) {
+                System.out.println("Guessing out of " + cell.countCandidates());
                 List<Integer[][]> solutions = new ArrayList<>();
-                for (Integer value : cell.getValues()) {
-                    Integer[][] nextGuess = copy(result);
+                for (Integer value : cell.getCandidates()) {
+                    Integer[][] nextGuess = copy(currentState);
                     nextGuess[cell.getRow()][cell.getCol()] = value;
                     try {
                         solutions.add(new SudokuSolver(nextGuess).solve());
@@ -78,25 +77,13 @@ public class SudokuSolver {
             }
         }
 
-        return result;
-    }
-
-    private Cell getNextPending() {
-        Cell next = null;
-        if (!pending.isEmpty()) {
-            next = pending.get(0);
-            if (next.getSize() != 1) {
-                pending.sort(comparing(Cell::getSize));
-                next = pending.get(0);
-            }
-        }
-        return next;
+        return currentState;
     }
 
     private void open(Cell cell) {
         Integer value = cell.getValue();
-        result[cell.getRow()][cell.getCol()] = value;
+        currentState[cell.getRow()][cell.getCol()] = value;
         pending.remove(cell);
-        pending.stream().filter(cell::related).forEach(pend -> pend.removeValue(value));
+        pending.stream().filter(cell::isRelated).forEach(pend -> pend.removeValue(value));
     }
 }

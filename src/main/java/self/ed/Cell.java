@@ -7,33 +7,33 @@ public class Cell {
     private int row;
     private int col;
     private int block;
-    private Set<Integer> values;
+    private Set<Integer> candidates;
 
-    public Cell(int row, int col, int block, Set<Integer> values) {
+    public Cell(int row, int col, int block, Set<Integer> candidates) {
         this.row = row;
         this.col = col;
         this.block = block;
-        this.values = new HashSet<>(values);
+        this.candidates = new HashSet<>(candidates);
     }
 
-    public boolean related(Cell cell) {
+    public boolean isRelated(Cell cell) {
         return row == cell.row || col == cell.col || block == cell.block;
     }
 
     public void removeValue(Integer value) {
-        values.remove(value);
+        candidates.remove(value);
     }
 
-    public int getSize() {
-        return values.size();
+    public int countCandidates() {
+        return candidates.size();
     }
 
-    public Set<Integer> getValues() {
-        return values;
+    public Set<Integer> getCandidates() {
+        return candidates;
     }
 
     public Integer getValue() {
-        return values.iterator().next();
+        return candidates.iterator().next();
     }
 
     public int getRow() {
