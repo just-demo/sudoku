@@ -9,7 +9,6 @@ import java.util.*;
 
 import static java.util.Collections.*;
 import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.IntStream.rangeClosed;
 import static self.ed.SudokuUtils.copy;
@@ -34,60 +33,7 @@ public class SudokuGenerator {
         return generate(new Integer[size][size], complexityLowerLimit);
     }
 
-//    public Integer[][] minimizeMax(Integer[][] initialValues, Collection<Cell> closeCandidates) {
-//        Set<Integer> defaultValues = rangeClosed(1, size).boxed().collect(toSet());
-//
-//        result = new Integer[size][size];
-//        List<Cell> open = new ArrayList<>();
-//        for (int row = 0; row < size; row++) {
-//            for (int col = 0; col < size; col++) {
-//                int block = blockSize * (row / blockSize) + col / blockSize;
-//                Integer value = initialValues[row][col];
-//                if (value != null) {
-//                    open.add(new Cell(row, col, block, singleton(value)));
-//                } else {
-//                    pending.add(new Cell(row, col, block, defaultValues));
-//                }
-//            }
-//        }
-//
-//        open.forEach(this::open);
-//
-//        List<Cell> open = new ArrayList<>();
-//        for (int row = 0; row < size; row++) {
-//            for (int col = 0; col < size; col++) {
-//                if (initialValues[row][col] != null) {
-//                    open.add(new Cell(row, col, 0, emptySet()));
-//                }
-//            }
-//        }
-//
-//        Map<Cell, Integer[][]> candidates = new HashMap<>();
-//        closeCandidates.forEach(cell -> {
-//            Integer[][] nextGuess = copy(initialValues);
-//            nextGuess[cell.getRow()][cell.getCol()] = null;
-//            try {
-//                new SudokuSolver(nextGuess).solve();
-//                candidates.put(cell, nextGuess);
-//            } catch (MultipleSolutionsException e) {
-//                // no-op
-//            }
-//        });
-//
-//        List<Cell> nextCloseCandidates = new ArrayList<>(candidates.keySet());
-//        shuffle(nextCloseCandidates);
-//        return new ArrayList<>(nextCloseCandidates).stream()
-//                .map(cell -> {
-//                    nextCloseCandidates.remove(cell);
-//                    return minimize(candidates.get(cell), nextCloseCandidates);
-//                })
-//                .map(matrix -> Pair.of(matrix, countOpen(matrix)))
-//                .min(comparing(Pair::getValue))
-//                .map(Pair::getKey)
-//                .orElse(initialValues);
-//    }
-
-    public Integer[][] minimize(Integer[][] initialValues) {
+    public Integer[][] reduce(Integer[][] initialValues) {
         List<Cell> open = new ArrayList<>();
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
@@ -97,10 +43,10 @@ public class SudokuGenerator {
             }
         }
 
-        return minimize(initialValues, open);
+        return reduce(initialValues, open);
     }
 
-    private Integer[][] minimize(Integer[][] initialValues, Collection<Cell> closeCandidates) {
+    private Integer[][] reduce(Integer[][] initialValues, Collection<Cell> closeCandidates) {
         Map<Cell, Integer[][]> candidates = new HashMap<>();
         closeCandidates.forEach(cell -> {
             Integer[][] nextGuess = copy(initialValues);
@@ -118,7 +64,7 @@ public class SudokuGenerator {
         return new ArrayList<>(nextCloseCandidates).stream()
                 .map(cell -> {
                     nextCloseCandidates.remove(cell);
-                    return minimize(candidates.get(cell), nextCloseCandidates);
+                    return reduce(candidates.get(cell), nextCloseCandidates);
                 })
                 .map(matrix -> Pair.of(matrix, countOpen(matrix)))
                 .min(comparing(Pair::getValue))

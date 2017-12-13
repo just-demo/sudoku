@@ -32,28 +32,28 @@ public class SudokuGeneratorTest {
     private static final Path ROOT_DIR = Paths.get("C:\\Users\\pc\\Desktop\\projects\\sudoku");
 
     @Test
-    public void testMinimizeAlreadyMinimal() {
+    public void testReduce_AlreadyMinimal() {
         Integer[][] input = parseFile(readFile("input-21.txt"));
-        Integer[][] output = new SudokuGenerator(9).minimize(input);
+        Integer[][] output = new SudokuGenerator(9).reduce(input);
         assertEquals(asString(input), asString(output));
     }
 
     @Test
-    public void testMinimizeMinusOne() {
+    public void testReduce_MinusOne() {
         Integer[][] input = parseFile(readFile("input-22.txt"));
-        Integer[][] output = new SudokuGenerator(9).minimize(input);
+        Integer[][] output = new SudokuGenerator(9).reduce(input);
         assertEquals(countOpen(input) - 1, countOpen(output));
     }
 
     @Test
-    public void testMinimizeMinusTwo() {
+    public void testReduce_MinusTwo() {
         Integer[][] input = parseFile(readFile("input-24.txt"));
-        Integer[][] output = new SudokuGenerator(9).minimize(input);
+        Integer[][] output = new SudokuGenerator(9).reduce(input);
         assertEquals(countOpen(input) - 2, countOpen(output));
     }
 
     @Test
-    public void testMinimizeBulk() throws IOException {
+    public void testReduce_Bulk() throws IOException {
         SudokuGenerator generator = new SudokuGenerator(9);
         Path baseDir = ROOT_DIR.resolve("data-20171213-004013");
         Path inDir = baseDir.resolve("failed");
@@ -64,7 +64,7 @@ public class SudokuGeneratorTest {
         for (File file : files) {
             System.out.println(file.getName());
             Integer[][] input = parseFile(readFileToString(file));
-            Integer[][] output = generator.minimize(input);
+            Integer[][] output = generator.reduce(input);
             long inputCount = countOpen(input);
             long outputCount = countOpen(output);
             String outFile = outputCount + "-" + file.getName().split("-", 2)[1];
@@ -78,7 +78,7 @@ public class SudokuGeneratorTest {
     }
 
     @Test
-    public void testGenerateComplex() throws IOException {
+    public void testGenerate_Complex() throws IOException {
         int complexityGenerateLimit = 30;
         int complexitySaveLimit = 23;
         Path basedDir = ROOT_DIR.resolve("data-" + getCurrentTime());
@@ -98,7 +98,7 @@ public class SudokuGeneratorTest {
                 Integer[][] result = generateFuture.get(2, SECONDS);
                 Long openCount = countOpen(result);
                 Integer[][] res = result;
-                Future<Integer[][]> minimizeFuture = executor.submit(() -> generator.minimize(res));
+                Future<Integer[][]> minimizeFuture = executor.submit(() -> generator.reduce(res));
                 try {
                     result = minimizeFuture.get(60, SECONDS);
                     Long newOpenCount = countOpen(result);
@@ -108,7 +108,7 @@ public class SudokuGeneratorTest {
                     }
                 } catch (Exception e) {
                     minimizeFuture.cancel(true);
-                    System.out.println("Failed to minimize: " + openCount);
+                    System.out.println("Failed to reduce: " + openCount);
                     Path file = failedDir.resolve(openCount + "-" + getCurrentTime() + "-" + sudokuNumber.get() + ".txt");
                     writeStringToFile(file.toFile(), asString(result));
                     return 300L;

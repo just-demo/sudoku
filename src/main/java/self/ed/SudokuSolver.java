@@ -21,7 +21,7 @@ public class SudokuSolver {
     public SudokuSolver(Integer[][] initialValues) {
         int size = initialValues.length;
         int blockSize = (int) Math.sqrt(size);
-        Set<Integer> defaultValues = rangeClosed(1, size).boxed().collect(toSet());
+        Set<Integer> values = rangeClosed(1, size).boxed().collect(toSet());
 
         result = new Integer[size][size];
         List<Cell> open = new ArrayList<>();
@@ -32,7 +32,7 @@ public class SudokuSolver {
                 if (value != null) {
                     open.add(new Cell(row, col, block, singleton(value)));
                 } else {
-                    pending.add(new Cell(row, col, block, defaultValues));
+                    pending.add(new Cell(row, col, block, values));
                 }
             }
         }
