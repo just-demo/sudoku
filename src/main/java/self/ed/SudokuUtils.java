@@ -2,6 +2,7 @@ package self.ed;
 
 import org.apache.commons.io.IOUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Arrays;
@@ -10,6 +11,7 @@ import java.util.Objects;
 import static java.lang.ClassLoader.getSystemResourceAsStream;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
+import static org.apache.commons.io.FileUtils.readFileToString;
 
 public class SudokuUtils {
     private static final String EMPTY_VALUE = ".";
@@ -33,6 +35,14 @@ public class SudokuUtils {
     public static String readFile(String fileName) {
         try {
             return IOUtils.toString(getSystemResourceAsStream(fileName));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static String readFile(File file) {
+        try {
+            return readFileToString(file);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

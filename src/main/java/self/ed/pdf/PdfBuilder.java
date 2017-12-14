@@ -8,76 +8,81 @@
 package self.ed.pdf;
 
 import com.itextpdf.text.Document;
-import com.itextpdf.text.Element;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Font;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.IntStream;
 
 import static com.itextpdf.text.Element.ALIGN_CENTER;
-import static com.itextpdf.text.Element.ALIGN_LEFT;
-import static com.itextpdf.text.Element.ALIGN_RIGHT;
-import static java.nio.file.Files.createDirectories;
-import static org.apache.commons.io.FileUtils.readFileToString;
+import static com.itextpdf.text.Font.BOLD;
+import static com.itextpdf.text.Font.FontFamily.HELVETICA;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
-import static self.ed.SudokuUtils.parseFile;
 
 public class PdfBuilder {
-    //https://developers.itextpdf.com/examples/itext-action-second-edition/chapter-4
-    //https://stackoverflow.com/questions/20815388/does-anyone-know-how-to-create-two-parallel-tables-using-itext-in-java
-    public static void main(String[] args) throws Exception {
-        new PdfBuilder().build();
+    private static final int TABLE_SIZE = 9;
+    private static final int CELL_WIDTH = 27;
+    private static final int TABLE_WIDTH = TABLE_SIZE * CELL_WIDTH;
+    private static final int TABLES_PER_LINE = 2;
+    private static final Font CELL_FONT = new Font(HELVETICA, 18, BOLD);
+    private static final float BORDER_NORMAL = 0.1f;
+    private static final float BORDER_BOLD = 1.0f;
+
+    public static void main(String[] args) {
+        int TABLES_PER_LINE = 3;
+        int size = 27;
+        System.out.println(IntStream.range(0, TABLES_PER_LINE - size % TABLES_PER_LINE).count());
     }
-
-    public void build() throws Exception {
-        Path baseDir = Paths.get("/Users/user/Work/projects/sudoku/data-pdf");
-        Path inDir = baseDir.resolve("in");
-        Path outDir = baseDir.resolve("out");
-        createDirectories(outDir);
-
-        File[] files = inDir.toFile().listFiles();
-        for (File file : files) {
-            System.out.println(file.getName());
-            Integer[][] input = parseFile(readFileToString(file));
-            Path outFile = outDir.resolve(file.getName() + ".pdf");
-            Files.deleteIfExists(outFile);
-            toPdf(input, outFile);
-        }
-    }
-
-    private void toPdf(Integer[][] matrix, Path file) throws Exception {
+    public byte[] build(List<Integer[][]> tables) throws DocumentException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Document document = new Document();
-        PdfWriter.getInstance(document, new FileOutputStream(file.toFile()));
+        PdfWriter.getInstance(document, outputStream);
         document.open();
-        document.add(createTable(matrix, ALIGN_LEFT));
-        document.add(createTable(matrix, ALIGN_RIGHT));
+
+        PdfPTable layout = new PdfPTable(TABLES_PER_LINE);
+        layout.setTotalWidth(TABLES_PER_LINE * TABLE_WIDTH + 3 * CELL_WIDTH);
+        layout.setLockedWidth(true);
+
+        tables = new ArrayList<>(tables);
+        while (tables.size() % TABLES_PER_LINE != 0) {
+            tables.add(null);
+        }
+
+        tables.forEach(table -> {
+            PdfPCell layoutCell = new PdfPCell();
+            if (table != null) {
+                layoutCell.addElement(createTable(table));
+            }
+            layoutCell.setBorder(PdfPCell.NO_BORDER);
+            layoutCell.setPaddingBottom(3 * CELL_WIDTH / 2);
+            layout.addCell(layoutCell);
+        });
+
+        document.add(layout);
         document.close();
+        return outputStream.toByteArray();
     }
 
-    private PdfPTable createTable(Integer[][] matrix, int alignment) {
-        int size = matrix.length;
-
-        PdfPTable table = new PdfPTable(9);
-        table.setTotalWidth(180);
+    private PdfPTable createTable(Integer[][] matrix) {
+        PdfPTable table = new PdfPTable(TABLE_SIZE);
+        table.setTotalWidth(TABLE_WIDTH);
         table.setLockedWidth(true);
-        table.setSpacingAfter(20);
-        table.setHorizontalAlignment(alignment);
-        table.setBreakPoints();
 
-        for (int row = 0; row < size; row++) {
-            for (int col = 0; col < size; col++) {
+        for (int row = 0; row < TABLE_SIZE; row++) {
+            for (int col = 0; col < TABLE_SIZE; col++) {
                 Integer value = matrix[row][col];
-                PdfPCell cell = new PdfPCell(new Phrase(Objects.toString(value, EMPTY)));
+                PdfPCell cell = new PdfPCell();
+                cell.setPhrase(new Phrase(Objects.toString(value, EMPTY), CELL_FONT));
                 cell.setHorizontalAlignment(ALIGN_CENTER);
                 cell.setVerticalAlignment(ALIGN_CENTER);
-                cell.setPaddingBottom(6);
+                cell.setFixedHeight(CELL_WIDTH);
 
                 cell.setBorderWidthTop(getBorderWidth(row));
                 cell.setBorderWidthRight(getBorderWidth(col + 1));
@@ -91,11 +96,14 @@ public class PdfBuilder {
     }
 
     private float getBorderWidth(int index) {
-        int size = 9;
-        int blockSize = (int) Math.sqrt(size);
+        if (index % TABLE_SIZE == 0) {
+            return 2 * BORDER_BOLD;
+        }
 
-        float thin = 0.25f;
-        float thick = 0.75f;
-        return index % size == 0 ? 2 * thick : index % blockSize == 0 ? thick : thin;
+        if (index % Math.sqrt(TABLE_SIZE) == 0) {
+            return BORDER_BOLD;
+        }
+
+        return BORDER_NORMAL;
     }
 }
