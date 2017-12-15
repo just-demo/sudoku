@@ -49,11 +49,7 @@ public class SudokuSolver {
         }
 
         while (!pendingCells.isEmpty()) {
-            Cell cell = pendingCells.get(0);
-            if (cell.countCandidates() != 1) {
-                pendingCells.sort(comparing(Cell::countCandidates));
-                cell = pendingCells.get(0);
-            }
+            Cell cell = pendingCells.stream().min(comparing(Cell::countCandidates)).get();
             if (cell.countCandidates() == 1) {
                 notifyOpening();
                 open(cell, cell.getCandidate());
