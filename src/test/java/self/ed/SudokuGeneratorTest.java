@@ -29,7 +29,7 @@ import static org.junit.Assert.assertEquals;
 import static self.ed.SudokuUtils.*;
 
 public class SudokuGeneratorTest {
-    private static final Path ROOT_DIR = Paths.get("C:\\Users\\pc\\Desktop\\projects\\sudoku");
+    private static final Path ROOT_DIR = Paths.get("/Users/user/Work/projects/sudoku");
 
     @Test
     public void testReduce_AlreadyMinimal() {
@@ -55,7 +55,7 @@ public class SudokuGeneratorTest {
     @Test
     public void testReduce_Bulk() throws IOException {
         SudokuGenerator generator = new SudokuGenerator(9);
-        Path baseDir = ROOT_DIR.resolve("data-20171213-004013");
+        Path baseDir = ROOT_DIR.resolve("data-20171214-173426");
         Path inDir = baseDir.resolve("failed");
         Path outDir = baseDir.resolve("ok-fixed");
         createDirectories(outDir);
@@ -79,7 +79,7 @@ public class SudokuGeneratorTest {
 
     @Test
     public void testGenerate_Complex() throws IOException {
-        int complexityGenerateLimit = 30;
+        int complexityGenerateLimit = 32;
         int complexitySaveLimit = 23;
         Path basedDir = ROOT_DIR.resolve("data-" + getCurrentTime());
         Path okDir = basedDir.resolve("ok");
@@ -127,7 +127,7 @@ public class SudokuGeneratorTest {
                 generateFuture.cancel(true);
                 return ExceptionUtils.indexOfType(e, ComplexityLimitException.class) > -1 ? 200L : 100L;
             }
-        }).limit(1000).collect(groupingBy(Function.identity(), TreeMap::new, counting()));
+        }).limit(10000).collect(groupingBy(Function.identity(), TreeMap::new, counting()));
 
         System.out.println(counts);
     }
