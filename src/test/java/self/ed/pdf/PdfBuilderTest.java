@@ -15,38 +15,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static java.nio.file.Files.createDirectories;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.io.FileUtils.writeStringToFile;
 import static org.apache.commons.lang3.StringUtils.repeat;
-import static self.ed.SudokuUtils.*;
+import static self.ed.SudokuUtils.parseFlatString;
+import static self.ed.SudokuUtils.readFile;
 
 public class PdfBuilderTest {
     private static final Path ROOT_DIR = Paths.get("/Users/user/Work/projects/sudoku");
 
     @Test
     public void testBuild() throws Exception {
-        Path baseDir = ROOT_DIR.resolve("data-pdf");
-        Path inDir = baseDir.resolve("in");
-        Path outDir = baseDir.resolve("out");
-        Path outFile = outDir.resolve("out.pdf");
-        createDirectories(outDir);
-
-        List<Integer[][]> tables = stream(inDir.toFile().listFiles())
-                .map(file -> parseFile(readFile(file)))
-                .collect(toList());
-
-//        Files.write(outFile, new PdfBuilder().build(tables));
-    }
-
-    @Test
-    public void testBuildPrepared() throws Exception {
         int limit = 21;
         Path baseDir = ROOT_DIR.resolve("data");
         Path inFile = baseDir.resolve("statistics.txt");
-        Path outFile = baseDir.resolve("statistics-" + limit + ".pdf");
+        Path outTaskFile = baseDir.resolve("task-" + limit + ".pdf");
+        Path outSolutionFile = baseDir.resolve("solution-" + limit + ".pdf");
 
         AtomicLong counter = new AtomicLong();
         List<Triple<Integer[][], Map<String, String>, Integer[][]>> tables = stream(readFile(inFile.toFile()).split("\n")).limit(limit)
@@ -61,10 +47,9 @@ public class PdfBuilderTest {
         List<Pair<Integer[][], Map<String, String>>> outputTables = tables.stream()
                 .map(triple -> Pair.of(triple.getRight(), triple.getMiddle()))
                 .collect(toList());
-        //                    Statistics statistics = new Statistics();
-//                    new SudokuSolver(table, statistics).solve();
-        // TODO: implement map: table => header lines
-        Files.write(outFile, new PdfBuilder(2).build(inputTables));
+
+        Files.write(outTaskFile, new PdfBuilder(2).build(inputTables));
+        Files.write(outSolutionFile, new PdfBuilder(6).build(outputTables));
     }
 
     private Triple<Integer[][], Map<String, String>, Integer[][]> buildMetaData(long id, Integer[][] input) {

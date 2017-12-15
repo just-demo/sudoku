@@ -28,21 +28,29 @@ import static com.itextpdf.text.Rectangle.NO_BORDER;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 public class PdfBuilder {
-    private int tableSize = 9;
-    private int cellWidth = 27;
-    private int tableWidth = tableSize * cellWidth;
-    private int tablesPerLine = 2;
-    private Font cellFont = new Font(HELVETICA, 18, BOLD);
-    private float borderNormal = 0.1f;
-    private float borderBold = 1.0f;
-
-
-    public PdfBuilder() {
-        this(2);
-    }
+    private float pageWidth;
+    private int tableSize;
+    private float cellWidth;
+    private float tableWidth;
+    private int tablesPerLine;
+    private Font cellFont;
+    private float borderNormal;
+    private float borderBold;
 
     public PdfBuilder(int tablesPerLine) {
         this.tablesPerLine = tablesPerLine;
+        // page width best fit for 2 tables per line
+        this.pageWidth = 567;
+        this.tableSize = 9;
+        this.cellWidth = (pageWidth / (tablesPerLine * (tableSize + 1.5f)));
+        this.tableWidth = tableSize * cellWidth;
+        cellFont = new Font(HELVETICA, cellWidth * 20 / 27 - 2, BOLD);
+
+        this.borderNormal = 0.1f;
+        this.borderBold = (float) (Math.log(2) / Math.log(tablesPerLine));
+        System.out.println(borderBold);
+        System.out.println(cellWidth);
+        System.out.println(cellFont.getSize());
     }
 
     public byte[] build(List<Pair<Integer[][], Map<String, String>>> tables) throws DocumentException {
@@ -52,7 +60,7 @@ public class PdfBuilder {
         document.open();
 
         PdfPTable layout = new PdfPTable(tablesPerLine);
-        layout.setTotalWidth(tablesPerLine * tableWidth + (tablesPerLine + 1) * cellWidth);
+        layout.setTotalWidth(pageWidth);
         layout.setLockedWidth(true);
 
         List<Pair<Integer[][], Map<String, String>>> tablesSized = new ArrayList<>(tables);
