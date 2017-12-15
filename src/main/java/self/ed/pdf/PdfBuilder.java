@@ -7,13 +7,12 @@
  */
 package self.ed.pdf;
 
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Font;
-import com.itextpdf.text.Phrase;
+import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import self.ed.SudokuSolver;
+import self.ed.visitor.Statistics;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -24,6 +23,7 @@ import java.util.stream.IntStream;
 import static com.itextpdf.text.Element.ALIGN_CENTER;
 import static com.itextpdf.text.Font.BOLD;
 import static com.itextpdf.text.Font.FontFamily.HELVETICA;
+import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 public class PdfBuilder {
@@ -40,6 +40,7 @@ public class PdfBuilder {
         int size = 27;
         System.out.println(IntStream.range(0, TABLES_PER_LINE - size % TABLES_PER_LINE).count());
     }
+
     public byte[] build(List<Integer[][]> tables) throws DocumentException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Document document = new Document();
@@ -58,6 +59,8 @@ public class PdfBuilder {
         tables.forEach(table -> {
             PdfPCell layoutCell = new PdfPCell();
             if (table != null) {
+                layoutCell.addElement(createStatistics(table));
+                layoutCell.addElement(new Paragraph(" "));
                 layoutCell.addElement(createTable(table));
             }
             layoutCell.setBorder(PdfPCell.NO_BORDER);
@@ -68,6 +71,20 @@ public class PdfBuilder {
         document.add(layout);
         document.close();
         return outputStream.toByteArray();
+    }
+
+    private Paragraph createStatistics(Integer[][] table) {
+        Statistics statistics = new Statistics();
+        new SudokuSolver(table, statistics).solve();
+        Paragraph lines = new Paragraph();
+        singletonList(
+                "Complexity: " + (TABLE_SIZE * TABLE_SIZE - statistics.getInitial()) + "/" + statistics.getMinGuesses() + "/" + statistics.getMaxGuesses()
+        ).forEach(summary -> {
+            Paragraph line = new Paragraph(summary);
+            line.setIndentationLeft(20);
+            lines.add(line);
+        });
+        return lines;
     }
 
     private PdfPTable createTable(Integer[][] matrix) {

@@ -39,6 +39,7 @@ public class SudokuSolver {
             }
         }
 
+        notifyInitial(openCells.size());
         openCells.forEach(this::open);
     }
 
@@ -54,7 +55,7 @@ public class SudokuSolver {
                 cell = pendingCells.get(0);
             }
             if (cell.countCandidates() == 1) {
-                notifyOpened();
+                notifyOpening();
                 open(cell, cell.getCandidate());
             } else if (cell.countCandidates() > 1) {
                 notifyGuessing(cell.countCandidates());
@@ -91,8 +92,12 @@ public class SudokuSolver {
         pendingCells.stream().filter(cell::isRelated).forEach(pend -> pend.removeCandidate(value));
     }
 
-    private void notifyOpened() {
-        asList(visitors).forEach(Visitor::opened);
+    private void notifyInitial(int number) {
+        asList(visitors).forEach(visitor -> visitor.initial(number));
+    }
+
+    private void notifyOpening() {
+        asList(visitors).forEach(Visitor::opening);
     }
 
     private void notifyGuessing(int number) {

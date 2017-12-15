@@ -24,6 +24,14 @@ public class SudokuUtils {
                 .collect(joining("\n"));
     }
 
+    public static String asFlatString(Integer[][] matrix) {
+        return stream(matrix)
+                .map(line -> stream(line)
+                        .map(cell -> Objects.toString(cell, "0"))
+                        .collect(joining()))
+                .collect(joining());
+    }
+
     public static long countOpen(Integer[][] matrix) {
         return stream(matrix).mapToLong(line -> stream(line).filter(Objects::nonNull).count()).sum();
     }
@@ -68,5 +76,18 @@ public class SudokuUtils {
 
     private static Integer parseCell(String cell) {
         return EMPTY_VALUE.equals(cell) ? null : Integer.valueOf(cell);
+    }
+
+    public static Integer[][] parseFlatString(String flat) {
+        String[] values = flat.split("");
+        int size = (int)Math.sqrt(values.length);
+        Integer[][] matrix = new Integer[size][size];
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                String value = values[row * size + col];
+                matrix[row][col] = "0".equals(value) ? null : Integer.valueOf(value);
+            }
+        }
+        return matrix;
     }
 }
