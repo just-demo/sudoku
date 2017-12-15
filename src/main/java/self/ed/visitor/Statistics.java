@@ -55,6 +55,6 @@ public class Statistics implements Visitor {
 
     @Override
     public String toString() {
-        return minGuesses + " / " + maxGuesses + " / " + openings + " / " + initial;
+        return minGuesses + " | " + maxGuesses + " | " + openings + " | " + initial;
     }
 }

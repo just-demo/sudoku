@@ -15,13 +15,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static java.nio.file.Files.createDirectories;
 import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.*;
 import static org.apache.commons.io.FileUtils.writeStringToFile;
 import static org.apache.commons.lang3.StringUtils.repeat;
-import static self.ed.SudokuUtils.parseFlatString;
-import static self.ed.SudokuUtils.readFile;
+import static self.ed.SudokuUtils.*;
 
 public class PdfBuilderTest {
     private static final Path ROOT_DIR = Paths.get("/Users/user/Work/projects/sudoku");
@@ -36,7 +35,7 @@ public class PdfBuilderTest {
 
         AtomicLong counter = new AtomicLong();
         List<Triple<Integer[][], Map<String, String>, Integer[][]>> tables = stream(readFile(inFile.toFile()).split("\n")).limit(limit)
-                .map(line -> parseFlatString(line.split(":")[0].trim()))
+                .map(line -> parseSimpleString(line.split(":")[0].trim()))
                 .map(table -> buildMetaData(counter.incrementAndGet(), table))
                 .collect(toList());
 
@@ -75,10 +74,29 @@ public class PdfBuilderTest {
 
         String delimiter = "\n" + repeat("-", 17) + "\n";
 
-        String merged = stream(inDir.toFile().listFiles())
+        String merged = streamFiles(inDir.toFile())
                 .map(SudokuUtils::readFile)
                 .collect(joining(delimiter));
 
         writeStringToFile(outFile.toFile(), merged);
+    }
+
+    @Test
+    public void testMergeFiles2() throws Exception {
+        Path baseDir = ROOT_DIR.resolve("data-20171214-173426");
+        Path inDir = baseDir.resolve("ok");
+        Path outDir = baseDir.resolve("merged");
+        createDirectories(outDir);
+
+        streamFiles(inDir.toFile())
+                .collect(groupingBy(file -> file.getName().split("-")[0]))
+                .forEach((group, files) -> {
+                    Path outFile = outDir.resolve(group + ".txt");
+                    String out = files.stream()
+                            .map(SudokuUtils::readFile)
+                            .map(content -> content.replaceAll("\\s", ""))
+                            .collect(joining("\n"));
+                    writeFile(outFile.toFile(), out);
+                });
     }
 }

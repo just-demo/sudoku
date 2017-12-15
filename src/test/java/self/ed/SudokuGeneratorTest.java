@@ -55,7 +55,7 @@ public class SudokuGeneratorTest {
     @Test
     public void testReduce_Bulk() throws IOException {
         SudokuGenerator generator = new SudokuGenerator(9);
-        Path baseDir = ROOT_DIR.resolve("data-20171214-173426");
+        Path baseDir = ROOT_DIR.resolve("data-20171215-121015");
         Path inDir = baseDir.resolve("failed");
         Path outDir = baseDir.resolve("ok-fixed");
         createDirectories(outDir);

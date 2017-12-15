@@ -6,12 +6,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import static java.lang.ClassLoader.getSystemResourceAsStream;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 import static org.apache.commons.io.FileUtils.readFileToString;
+import static org.apache.commons.io.FileUtils.writeStringToFile;
 
 public class SudokuUtils {
     private static final String EMPTY_VALUE = ".";
@@ -24,10 +28,10 @@ public class SudokuUtils {
                 .collect(joining("\n"));
     }
 
-    public static String asFlatString(Integer[][] matrix) {
+    public static String asSimpleString(Integer[][] matrix) {
         return stream(matrix)
                 .map(line -> stream(line)
-                        .map(cell -> Objects.toString(cell, "0"))
+                        .map(cell -> Objects.toString(cell, EMPTY_VALUE))
                         .collect(joining()))
                 .collect(joining());
     }
@@ -47,6 +51,14 @@ public class SudokuUtils {
     public static String readFile(File file) {
         try {
             return readFileToString(file);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static void writeFile(File file, String data) {
+        try {
+            writeStringToFile(file, data);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -78,16 +90,24 @@ public class SudokuUtils {
         return EMPTY_VALUE.equals(cell) ? null : Integer.valueOf(cell);
     }
 
-    public static Integer[][] parseFlatString(String flat) {
+    public static Integer[][] parseSimpleString(String flat) {
         String[] values = flat.split("");
-        int size = (int)Math.sqrt(values.length);
+        int size = (int) Math.sqrt(values.length);
         Integer[][] matrix = new Integer[size][size];
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
                 String value = values[row * size + col];
-                matrix[row][col] = "0".equals(value) ? null : Integer.valueOf(value);
+                matrix[row][col] = EMPTY_VALUE.equals(value) ? null : Integer.valueOf(value);
             }
         }
         return matrix;
+    }
+
+    public static List<File> listFiles(File dir) {
+        return streamFiles(dir).collect(toList());
+    }
+
+    public static Stream<File> streamFiles(File dir) {
+        return dir.isDirectory() ? stream(dir.listFiles()).flatMap(SudokuUtils::streamFiles) : Stream.of(dir);
     }
 }
