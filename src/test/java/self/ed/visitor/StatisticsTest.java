@@ -2,7 +2,8 @@ package self.ed.visitor;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
-import self.ed.SudokuSolver;
+import self.ed.solver.CleverSolver;
+import self.ed.solver.SimpleSolver;
 import self.ed.SudokuUtils;
 
 import java.nio.file.Path;
@@ -28,7 +29,7 @@ public class StatisticsTest {
         asList(inDir.toFile().listFiles()).forEach(file -> {
             Integer[][] table = parseFile(readFile(file));
             Statistics statistics = new Statistics();
-            new SudokuSolver(table, statistics).solve();
+            new SimpleSolver(table, statistics).solve();
             System.out.println(file.getName() + ": " + statistics.toString());
         });
     }
@@ -51,7 +52,8 @@ public class StatisticsTest {
                 .map(table -> {
                     System.out.println(progress.incrementAndGet() + "/" + tables.size());
                     Statistics statistics = new Statistics();
-                    new SudokuSolver(table, statistics).solve();
+//                    new SimpleSolver(table, statistics).solve(); // 3m 36s
+                    new CleverSolver(table, statistics).solve(); //57s
                     return Pair.of(asSimpleString(table), statistics);
                 })
                 .sorted(comparing(Pair::getValue, COMPLEXITY_COMPARATOR))

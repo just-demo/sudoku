@@ -4,6 +4,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import self.ed.exception.ComplexityLimitException;
 import self.ed.exception.MultipleSolutionsException;
 import self.ed.exception.NoSolutionException;
+import self.ed.solver.CleverSolver;
+import self.ed.solver.SimpleSolver;
 
 import java.util.*;
 
@@ -52,7 +54,7 @@ public class SudokuGenerator {
             Integer[][] nextGuess = copy(initialValues);
             nextGuess[cell.getRow()][cell.getCol()] = null;
             try {
-                new SudokuSolver(nextGuess).solve();
+                new CleverSolver(nextGuess).solve();
                 candidates.put(cell, nextGuess);
             } catch (MultipleSolutionsException e) {
                 // no-op
@@ -78,7 +80,7 @@ public class SudokuGenerator {
         }
 
         try {
-            new SudokuSolver(initialValues).solve();
+            new SimpleSolver(initialValues).solve();
             return initialValues;
         } catch (MultipleSolutionsException e) {
             List<Cell> open = new ArrayList<>();

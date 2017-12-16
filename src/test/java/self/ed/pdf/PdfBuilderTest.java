@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.junit.Test;
-import self.ed.SudokuSolver;
+import self.ed.solver.SimpleSolver;
 import self.ed.SudokuUtils;
 import self.ed.visitor.Statistics;
 
@@ -51,7 +51,7 @@ public class PdfBuilderTest {
 
     private Triple<Integer[][], Map<String, String>, Integer[][]> buildMetaData(long id, Integer[][] input) {
         Statistics statistics = new Statistics();
-        Integer[][] output = new SudokuSolver(input, statistics).solve();
+        Integer[][] output = new SimpleSolver(input, statistics).solve();
         int hidden = input.length * input.length - statistics.getInitial();
         return Triple.of(
                 input,

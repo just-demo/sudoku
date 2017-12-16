@@ -1,5 +1,6 @@
-package self.ed;
+package self.ed.solver;
 
+import self.ed.Cell;
 import self.ed.exception.MultipleSolutionsException;
 import self.ed.exception.NoSolutionException;
 import self.ed.exception.TimeLimitException;
@@ -7,19 +8,19 @@ import self.ed.visitor.Visitor;
 
 import java.util.*;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.IntStream.rangeClosed;
 import static self.ed.SudokuUtils.copy;
+import static self.ed.visitor.Visitor.*;
 
-public class SudokuSolver {
+public class SimpleSolver {
     private Integer[][] solution;
     private List<Cell> pendingCells = new ArrayList<>();
     private Visitor[] visitors;
 
-    public SudokuSolver(Integer[][] initialValues, Visitor... visitors) {
+    public SimpleSolver(Integer[][] initialValues, Visitor... visitors) {
         this.visitors = visitors;
         int size = initialValues.length;
         int blockSize = (int) Math.sqrt(size);
@@ -39,7 +40,7 @@ public class SudokuSolver {
             }
         }
 
-        notifyInitial(openCells.size());
+        notifyInitial(visitors, openCells.size());
         openCells.forEach(this::open);
     }
 
@@ -51,17 +52,17 @@ public class SudokuSolver {
         while (!pendingCells.isEmpty()) {
             Cell cell = pendingCells.stream().min(comparing(Cell::countCandidates)).get();
             if (cell.countCandidates() == 1) {
-                notifyOpening();
+                notifyOpening(visitors);
                 open(cell, cell.getCandidate());
             } else if (cell.countCandidates() > 1) {
-                notifyGuessing(cell.countCandidates());
+                notifyGuessing(visitors, cell.countCandidates());
 //                System.out.println("Guessing out of " + cell.countCandidates());
                 List<Integer[][]> solutions = new ArrayList<>();
                 for (Integer value : cell.getCandidates()) {
                     Integer[][] nextGuess = copy(solution);
                     nextGuess[cell.getRow()][cell.getCol()] = value;
                     try {
-                        solutions.add(new SudokuSolver(nextGuess, visitors).solve());
+                        solutions.add(new SimpleSolver(nextGuess, visitors).solve());
                         if (solutions.size() > 1) {
                             throw new MultipleSolutionsException();
                         }
@@ -72,7 +73,7 @@ public class SudokuSolver {
                 if (solutions.isEmpty()) {
                     throw new NoSolutionException();
                 }
-                notifyGuessed();
+                notifyGuessed(visitors);
                 return solutions.iterator().next();
             } else {
                 throw new NoSolutionException();
@@ -86,21 +87,5 @@ public class SudokuSolver {
         solution[cell.getRow()][cell.getCol()] = value;
         pendingCells.remove(cell);
         pendingCells.stream().filter(cell::isRelated).forEach(pend -> pend.removeCandidate(value));
-    }
-
-    private void notifyInitial(int number) {
-        asList(visitors).forEach(visitor -> visitor.initial(number));
-    }
-
-    private void notifyOpening() {
-        asList(visitors).forEach(Visitor::opening);
-    }
-
-    private void notifyGuessing(int number) {
-        asList(visitors).forEach(visitor -> visitor.guessing(number));
-    }
-
-    private void notifyGuessed() {
-        asList(visitors).forEach(Visitor::guessed);
     }
 }
