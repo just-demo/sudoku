@@ -21,6 +21,7 @@ import static java.nio.file.Files.createDirectories;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.joining;
 import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.apache.commons.io.FileUtils.writeStringToFile;
 import static org.junit.Assert.assertEquals;
@@ -129,5 +130,24 @@ public class SudokuGeneratorTest {
         }).limit(10000).collect(groupingBy(Function.identity(), TreeMap::new, counting()));
 
         System.out.println(counts);
+    }
+
+    @Test
+    public void testMergeFiles() throws Exception {
+        Path baseDir = ROOT_DIR.resolve("data-20171213");
+        Path inDir = baseDir.resolve("ok");
+        Path outDir = baseDir.resolve("merged");
+        createDirectories(outDir);
+
+        streamFiles(inDir.toFile())
+                .collect(groupingBy(file -> file.getName().split("-")[0]))
+                .forEach((group, files) -> {
+                    Path outFile = outDir.resolve(group + ".txt");
+                    String out = files.stream()
+                            .map(SudokuUtils::readFile)
+                            .map(content -> content.replaceAll("\\s", ""))
+                            .collect(joining("\n"));
+                    writeFile(outFile.toFile(), out);
+                });
     }
 }

@@ -2,9 +2,9 @@ package self.ed.visitor;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
+import self.ed.SudokuUtils;
 import self.ed.solver.CleverSolver;
 import self.ed.solver.SimpleSolver;
-import self.ed.SudokuUtils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -23,19 +23,7 @@ public class StatisticsCaptorTest {
     private static final Path ROOT_DIR = Paths.get("C:\\Users\\pc\\Desktop\\projects\\sudoku");
 
     @Test
-    public void testCapture() {
-        Path baseDir = ROOT_DIR.resolve("data-pdf");
-        Path inDir = baseDir.resolve("in");
-        asList(inDir.toFile().listFiles()).forEach(file -> {
-            Integer[][] table = parseFile(readFile(file));
-            StatisticsCaptor statistics = new StatisticsCaptor();
-            new SimpleSolver(table, statistics).solve();
-            System.out.println(file.getName() + ": " + statistics.toString());
-        });
-    }
-
-    @Test
-    public void testCalculateStatistics() {
+    public void testStatistics() {
         Path baseDir = ROOT_DIR.resolve("data");
         Path inDir = baseDir.resolve("ready");
         Path outFile = baseDir.resolve("statistics-" + getCurrentTime() + ".txt");
@@ -52,8 +40,7 @@ public class StatisticsCaptorTest {
                 .map(table -> {
                     System.out.println(progress.incrementAndGet() + "/" + tables.size());
                     StatisticsCaptor statistics = new StatisticsCaptor();
-//                    new SimpleSolver(table, statistics).solve(); // 3m 36s
-                    new CleverSolver(table, statistics).solve(); //57s
+                    new CleverSolver(table, statistics).solve();
                     return Pair.of(asSimpleString(table), statistics);
                 })
                 .sorted(comparing(Pair::getValue, COMPLEXITY_COMPARATOR))
