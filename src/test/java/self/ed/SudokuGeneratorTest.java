@@ -29,7 +29,7 @@ import static org.junit.Assert.assertEquals;
 import static self.ed.SudokuUtils.*;
 
 public class SudokuGeneratorTest {
-    private static final Path ROOT_DIR = Paths.get("/Users/user/Work/projects/sudoku");
+    private static final Path ROOT_DIR = Paths.get("C:\\Users\\pc\\Desktop\\projects\\sudoku");
 
     @Test
     public void testReduce_AlreadyMinimal() {
@@ -55,7 +55,7 @@ public class SudokuGeneratorTest {
     @Test
     public void testReduce_Bulk() throws IOException {
         SudokuGenerator generator = new SudokuGenerator(9);
-        Path baseDir = ROOT_DIR.resolve("data-20171215-121015");
+        Path baseDir = ROOT_DIR.resolve("data-failed");
         Path inDir = baseDir.resolve("failed");
         Path outDir = baseDir.resolve("ok-fixed");
         createDirectories(outDir);
@@ -73,6 +73,7 @@ public class SudokuGeneratorTest {
                 minimizedCount.incrementAndGet();
                 System.out.println("Minimized " + file.getName() + ":" + inputCount + " => " + outputCount);
             }
+            file.delete();
         }
         System.out.println("Minimized " + minimizedCount.get() + " of " + files.length);
     }

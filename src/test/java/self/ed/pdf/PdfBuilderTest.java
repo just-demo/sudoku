@@ -18,12 +18,10 @@ import java.util.concurrent.atomic.AtomicLong;
 import static java.nio.file.Files.createDirectories;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.*;
-import static org.apache.commons.io.FileUtils.writeStringToFile;
-import static org.apache.commons.lang3.StringUtils.repeat;
 import static self.ed.SudokuUtils.*;
 
 public class PdfBuilderTest {
-    private static final Path ROOT_DIR = Paths.get("/Users/user/Work/projects/sudoku");
+    private static final Path ROOT_DIR = Paths.get("C:\\Users\\pc\\Desktop\\projects\\sudoku");
 
     @Test
     public void testBuild() throws Exception {
@@ -65,25 +63,9 @@ public class PdfBuilderTest {
         );
     }
 
-
     @Test
     public void testMergeFiles() throws Exception {
-        Path baseDir = ROOT_DIR.resolve("data");
-        Path inDir = baseDir.resolve("23");
-        Path outFile = baseDir.resolve("23.txt");
-
-        String delimiter = "\n" + repeat("-", 17) + "\n";
-
-        String merged = streamFiles(inDir.toFile())
-                .map(SudokuUtils::readFile)
-                .collect(joining(delimiter));
-
-        writeStringToFile(outFile.toFile(), merged);
-    }
-
-    @Test
-    public void testMergeFiles2() throws Exception {
-        Path baseDir = ROOT_DIR.resolve("data-20171214-173426");
+        Path baseDir = ROOT_DIR.resolve("data-20171213");
         Path inDir = baseDir.resolve("ok");
         Path outDir = baseDir.resolve("merged");
         createDirectories(outDir);
