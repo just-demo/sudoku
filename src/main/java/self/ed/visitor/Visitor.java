@@ -1,9 +1,12 @@
 package self.ed.visitor;
 
 public interface Visitor {
+
     void initial(int number);
 
-    void opening();
+    void openingCell();
+
+    void openingValue();
 
     void guessing(int number);
 
@@ -15,9 +18,15 @@ public interface Visitor {
         }
     }
 
-    static void notifyOpening(Visitor[] visitors) {
+    static void notifyOpeningCell(Visitor[] visitors) {
         for (Visitor visitor : visitors) {
-            visitor.opening();
+            visitor.openingCell();
+        }
+    }
+
+    static void notifyOpeningValue(Visitor[] visitors) {
+        for (Visitor visitor : visitors) {
+            visitor.openingValue();
         }
     }
 

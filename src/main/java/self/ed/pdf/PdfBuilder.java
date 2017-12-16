@@ -53,7 +53,7 @@ public class PdfBuilder {
         System.out.println(cellFont.getSize());
     }
 
-    public byte[] build(List<Pair<Integer[][], Map<String, String>>> tables) throws DocumentException {
+    public byte[] build(List<Pair<Integer[][], List<String>>> tables) throws DocumentException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Document document = new Document();
         PdfWriter.getInstance(document, outputStream);
@@ -63,7 +63,7 @@ public class PdfBuilder {
         layout.setTotalWidth(pageWidth);
         layout.setLockedWidth(true);
 
-        List<Pair<Integer[][], Map<String, String>>> tablesSized = new ArrayList<>(tables);
+        List<Pair<Integer[][], List<String>>> tablesSized = new ArrayList<>(tables);
         while (tablesSized.size() % tablesPerLine != 0) {
             tablesSized.add(null);
         }
@@ -84,7 +84,7 @@ public class PdfBuilder {
         return outputStream.toByteArray();
     }
 
-    private Element createSummary(Map<String, String> summaryItems) {
+    private Element createSummary(List<String> summaryItems) {
         PdfPTable summary = new PdfPTable(2);
         Font summaryFont = new Font(cellFont);
         summaryFont.setSize(cellFont.getSize() * 0.8f);
@@ -92,8 +92,8 @@ public class PdfBuilder {
         summary.setTotalWidth(tableWidth);
         summary.setLockedWidth(true);
         ImmutableMap.of(
-                "# " + summaryItems.get("id"), ALIGN_LEFT,
-                summaryItems.get("complexity"), ALIGN_RIGHT
+                summaryItems.get(0), ALIGN_LEFT,
+                summaryItems.get(1), ALIGN_RIGHT
         ).forEach((text, alignment) -> {
             PdfPCell cell = new PdfPCell();
             cell.setPhrase(new Phrase(text, summaryFont));

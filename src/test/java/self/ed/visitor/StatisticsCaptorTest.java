@@ -17,9 +17,9 @@ import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static self.ed.SudokuUtils.*;
-import static self.ed.visitor.Statistics.COMPLEXITY_COMPARATOR;
+import static self.ed.visitor.StatisticsCaptor.COMPLEXITY_COMPARATOR;
 
-public class StatisticsTest {
+public class StatisticsCaptorTest {
     private static final Path ROOT_DIR = Paths.get("C:\\Users\\pc\\Desktop\\projects\\sudoku");
 
     @Test
@@ -28,7 +28,7 @@ public class StatisticsTest {
         Path inDir = baseDir.resolve("in");
         asList(inDir.toFile().listFiles()).forEach(file -> {
             Integer[][] table = parseFile(readFile(file));
-            Statistics statistics = new Statistics();
+            StatisticsCaptor statistics = new StatisticsCaptor();
             new SimpleSolver(table, statistics).solve();
             System.out.println(file.getName() + ": " + statistics.toString());
         });
@@ -51,7 +51,7 @@ public class StatisticsTest {
         String out = tables.stream()
                 .map(table -> {
                     System.out.println(progress.incrementAndGet() + "/" + tables.size());
-                    Statistics statistics = new Statistics();
+                    StatisticsCaptor statistics = new StatisticsCaptor();
 //                    new SimpleSolver(table, statistics).solve(); // 3m 36s
                     new CleverSolver(table, statistics).solve(); //57s
                     return Pair.of(asSimpleString(table), statistics);

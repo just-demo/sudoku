@@ -66,7 +66,6 @@ public class CleverSolver {
         while (!pendingCells.isEmpty()) {
             try {
                 openNext();
-                notifyOpening(visitors);
             } catch (CannotOpenWithoutGuessingException e) {
                 return solveWithGuess(e.getCell(), e.getValue());
             }
@@ -82,12 +81,14 @@ public class CleverSolver {
 
         Cell cell = pendingCells.stream().min(comparing(Cell::countCandidates)).get();
         if (cell.countCandidates() == 1) {
+            notifyOpeningCell(visitors);
             cell.open(cell.getCandidate());
             return;
         }
 
         Value value = pendingValues.stream().min(comparing(Value::countCandidates)).get();
         if (value.countCandidates() == 1) {
+            notifyOpeningValue(visitors);
             value.getCandidate().open(value);
             return;
         }
@@ -118,7 +119,7 @@ public class CleverSolver {
                 Integer[][] nextGuess = copyState();
                 nextGuess[guessCell.getRow()][guessCell.getCol()] = guessValue.getValue();
                 try {
-                    solutions.add(new CleverSolver(nextGuess).solve());
+                    solutions.add(new CleverSolver(nextGuess, visitors).solve());
                     if (solutions.size() > 1) {
                         throw new MultipleSolutionsException();
                     }

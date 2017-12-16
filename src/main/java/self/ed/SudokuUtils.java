@@ -116,4 +116,8 @@ public class SudokuUtils {
     public static String getCurrentTime() {
         return new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
     }
+
+    public static String join(String delimiter, Object... items) {
+        return stream(items).map(Object::toString).collect(joining(delimiter));
+    }
 }

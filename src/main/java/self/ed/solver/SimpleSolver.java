@@ -52,7 +52,7 @@ public class SimpleSolver {
         while (!pendingCells.isEmpty()) {
             Cell cell = pendingCells.stream().min(comparing(Cell::countCandidates)).get();
             if (cell.countCandidates() == 1) {
-                notifyOpening(visitors);
+                notifyOpeningCell(visitors);
                 open(cell, cell.getCandidate());
             } else if (cell.countCandidates() > 1) {
                 notifyGuessing(visitors, cell.countCandidates());
