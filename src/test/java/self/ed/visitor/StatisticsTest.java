@@ -9,17 +9,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static self.ed.SudokuUtils.*;
 import static self.ed.visitor.Statistics.COMPLEXITY_COMPARATOR;
 
 public class StatisticsTest {
-    private static final Path ROOT_DIR = Paths.get("/Users/user/Work/projects/sudoku");
+    private static final Path ROOT_DIR = Paths.get("C:\\Users\\pc\\Desktop\\projects\\sudoku");
 
     @Test
     public void testCapture() {
@@ -34,12 +34,12 @@ public class StatisticsTest {
     }
 
     @Test
-    public void testGetStatistics() {
+    public void testCalculateStatistics() {
         Path baseDir = ROOT_DIR.resolve("data");
+        Path inDir = baseDir.resolve("ready");
+        Path outFile = baseDir.resolve("statistics-" + getCurrentTime() + ".txt");
 
-        List<Integer[][]> tables = Stream.of("20.txt", "21.txt", "22.txt", "23.txt")
-                .map(baseDir::resolve)
-                .map(Path::toFile)
+        List<Integer[][]> tables = streamFiles(inDir.toFile())
                 .map(SudokuUtils::readFile)
                 .flatMap(file -> stream(file.split("\n")))
                 .map(String::trim)
@@ -47,7 +47,7 @@ public class StatisticsTest {
                 .collect(toList());
 
         AtomicInteger progress = new AtomicInteger();
-        tables.stream()
+        String out = tables.stream()
                 .map(table -> {
                     System.out.println(progress.incrementAndGet() + "/" + tables.size());
                     Statistics statistics = new Statistics();
@@ -55,8 +55,8 @@ public class StatisticsTest {
                     return Pair.of(asSimpleString(table), statistics);
                 })
                 .sorted(comparing(Pair::getValue, COMPLEXITY_COMPARATOR))
-                .forEach(pair ->
-                        System.out.println(pair.getKey() + " | " + pair.getValue())
-                );
+                .map(pair -> pair.getKey() + " | " + pair.getValue())
+                .collect(joining("\n"));
+        writeFile(outFile.toFile(), out);
     }
 }

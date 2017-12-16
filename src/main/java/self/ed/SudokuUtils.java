@@ -5,7 +5,9 @@ import org.apache.commons.io.IOUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -109,5 +111,9 @@ public class SudokuUtils {
 
     public static Stream<File> streamFiles(File dir) {
         return dir.isDirectory() ? stream(dir.listFiles()).flatMap(SudokuUtils::streamFiles) : Stream.of(dir);
+    }
+
+    public static String getCurrentTime() {
+        return new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
     }
 }

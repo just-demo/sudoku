@@ -8,8 +8,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
@@ -131,9 +129,5 @@ public class SudokuGeneratorTest {
         }).limit(10000).collect(groupingBy(Function.identity(), TreeMap::new, counting()));
 
         System.out.println(counts);
-    }
-
-    private String getCurrentTime() {
-        return new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
     }
 }
