@@ -40,11 +40,11 @@ public class PdfBuilder {
     public PdfBuilder(int tablesPerLine) {
         this.tablesPerLine = tablesPerLine;
         // page width best fit for 2 tables per line
-        this.pageWidth = 567;
+        this.pageWidth = 609;
         this.tableSize = 9;
         this.cellWidth = (pageWidth / (tablesPerLine * (tableSize + 1.5f)));
         this.tableWidth = tableSize * cellWidth;
-        cellFont = new Font(HELVETICA, cellWidth * 20 / 27 - 2, BOLD);
+        cellFont = new Font(HELVETICA, cellWidth * 22 / 29 - 2, BOLD);
 
         this.borderNormal = 0.1f;
         this.borderBold = (float) (Math.log(2) / Math.log(tablesPerLine));
