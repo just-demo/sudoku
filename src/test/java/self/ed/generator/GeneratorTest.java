@@ -23,7 +23,6 @@ import static java.nio.file.Files.createDirectories;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.*;
 import static org.apache.commons.io.FileUtils.readFileToString;
-import static org.apache.commons.io.FileUtils.writeStringToFile;
 import static org.junit.Assert.assertEquals;
 import static self.ed.util.Utils.*;
 
@@ -69,7 +68,7 @@ public class GeneratorTest {
             long inputCount = countOpen(input);
             long outputCount = countOpen(output);
             String outFile = outputCount + "-" + file.getName().split("-", 2)[1];
-            writeStringToFile(outDir.resolve(outFile).toFile(), asString(output));
+            writeFile(outDir.resolve(outFile).toFile(), asString(output));
             if (outputCount != inputCount) {
                 minimizedCount.incrementAndGet();
                 System.out.println("Minimized " + file.getName() + ":" + inputCount + " => " + outputCount);
@@ -81,7 +80,7 @@ public class GeneratorTest {
 
     @Test
     public void testGenerate_Complex() throws IOException {
-        int complexityGenerateLimit = 81;
+        int complexityGenerateLimit = 31;
         int complexitySaveLimit = 81;
         Path basedDir = ROOT_DIR.resolve("data-" + getCurrentTime());
         Path okDir = basedDir.resolve("ok");
@@ -112,7 +111,7 @@ public class GeneratorTest {
                     minimizeFuture.cancel(true);
                     System.out.println("Failed to reduce: " + openCount);
                     Path file = failedDir.resolve(openCount + "-" + getCurrentTime() + "-" + sudokuNumber.get() + ".txt");
-                    writeStringToFile(file.toFile(), asString(result));
+                    writeFile(file.toFile(), asString(result));
                     return 300L;
                 }
                 Long newMin = openCount;
@@ -121,7 +120,7 @@ public class GeneratorTest {
                 if (openCount <= complexitySaveLimit) {
                     System.out.println(asString(result));
                     Path file = okDir.resolve(openCount + "-" + getCurrentTime() + "-" + sudokuNumber.get() + ".txt");
-                    writeStringToFile(file.toFile(), asString(result));
+                    writeFile(file.toFile(), asString(result));
                 }
                 System.out.println("------------------");
                 return openCount;
@@ -136,9 +135,8 @@ public class GeneratorTest {
 
     @Test
     public void testMergeFiles() throws Exception {
-        Path baseDir = ROOT_DIR.resolve("data-20171213");
-        Path inDir = baseDir.resolve("ok");
-        Path outDir = baseDir.resolve("merged");
+        Path inDir = ROOT_DIR.resolve("data-failed");
+        Path outDir = ROOT_DIR.resolve("data").resolve("ready");
         createDirectories(outDir);
 
         streamFiles(inDir.toFile())
@@ -149,7 +147,7 @@ public class GeneratorTest {
                             .map(Utils::readFile)
                             .map(content -> content.replaceAll("\\s", ""))
                             .collect(joining("\n"));
-                    writeFile(outFile.toFile(), out);
+                    appendFile(outFile.toFile(), out + "\n");
                 });
     }
 }

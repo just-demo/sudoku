@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 import static java.lang.ClassLoader.getSystemResourceAsStream;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
@@ -44,7 +45,7 @@ public class Utils {
 
     public static String readFile(String fileName) {
         try {
-            return IOUtils.toString(getSystemResourceAsStream(fileName));
+            return IOUtils.toString(getSystemResourceAsStream(fileName), UTF_8);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -52,7 +53,7 @@ public class Utils {
 
     public static String readFile(File file) {
         try {
-            return readFileToString(file);
+            return readFileToString(file, UTF_8);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -60,7 +61,15 @@ public class Utils {
 
     public static void writeFile(File file, String data) {
         try {
-            writeStringToFile(file, data);
+            writeStringToFile(file, data, UTF_8);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static void appendFile(File file, String data) {
+        try {
+            writeStringToFile(file, data, UTF_8, true);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
