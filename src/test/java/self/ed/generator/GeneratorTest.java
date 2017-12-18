@@ -1,9 +1,8 @@
-package self.ed;
+package self.ed.generator;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.junit.Test;
 import self.ed.exception.ComplexityLimitException;
-import self.ed.generator.Generator;
 import self.ed.util.Utils;
 
 import java.io.File;
@@ -19,18 +18,17 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import static java.lang.System.currentTimeMillis;
 import static java.nio.file.Files.createDirectories;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static java.util.stream.Collectors.counting;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.*;
 import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.apache.commons.io.FileUtils.writeStringToFile;
 import static org.junit.Assert.assertEquals;
 import static self.ed.util.Utils.*;
 
 public class GeneratorTest {
-    private static final Path ROOT_DIR = Paths.get("C:\\Users\\pc\\Desktop\\projects\\sudoku");
+    private static final Path ROOT_DIR = Paths.get("/Users/user/Work/projects/sudoku");
 
     @Test
     public void testReduce_AlreadyMinimal() {
@@ -65,7 +63,9 @@ public class GeneratorTest {
         for (File file : files) {
             System.out.println(file.getName());
             Integer[][] input = parseFile(readFileToString(file));
+            long startTime = currentTimeMillis();
             Integer[][] output = generator.reduce(input);
+            System.out.println("Time: " + (currentTimeMillis() - startTime) / 1000d + "s");
             long inputCount = countOpen(input);
             long outputCount = countOpen(output);
             String outFile = outputCount + "-" + file.getName().split("-", 2)[1];
@@ -81,7 +81,7 @@ public class GeneratorTest {
 
     @Test
     public void testGenerate_Complex() throws IOException {
-        int complexityGenerateLimit = 30;
+        int complexityGenerateLimit = 81;
         int complexitySaveLimit = 81;
         Path basedDir = ROOT_DIR.resolve("data-" + getCurrentTime());
         Path okDir = basedDir.resolve("ok");
@@ -97,7 +97,7 @@ public class GeneratorTest {
             System.out.println("Sudoku " + sudokuNumber.incrementAndGet());
             Future<Integer[][]> generateFuture = executor.submit(() -> generator.generate(complexityGenerateLimit));
             try {
-                Integer[][] result = generateFuture.get(3, SECONDS);
+                Integer[][] result = generateFuture.get(2, SECONDS);
                 Long openCount = countOpen(result);
                 Integer[][] res = result;
                 Future<Integer[][]> minimizeFuture = executor.submit(() -> generator.reduce(res));
