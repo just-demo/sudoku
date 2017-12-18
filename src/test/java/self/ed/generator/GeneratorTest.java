@@ -81,7 +81,7 @@ public class GeneratorTest {
     public void testGenerate_Complex() throws IOException {
         int complexityGenerateLimit = 31;
         int complexitySaveLimit = 81;
-        Path basedDir = Paths.get("data-" + getCurrentTime());
+        Path basedDir = Paths.get("data").resolve("generated").resolve(getCurrentTime());
         Path okDir = basedDir.resolve("ok");
         Path failedDir = basedDir.resolve("failed");
         createDirectories(okDir);
@@ -134,7 +134,7 @@ public class GeneratorTest {
 
     @Test
     public void testMergeFiles() throws Exception {
-        Path inDir = Paths.get("data-failed");
+        Path inDir = Paths.get("data").resolve("generated");
         Path outDir = Paths.get("data").resolve("ready");
         createDirectories(outDir);
 
