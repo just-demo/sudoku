@@ -27,7 +27,6 @@ import static org.junit.Assert.assertEquals;
 import static self.ed.util.Utils.*;
 
 public class GeneratorTest {
-    private static final Path ROOT_DIR = Paths.get("/Users/user/Work/projects/sudoku");
 
     @Test
     public void testReduce_AlreadyMinimal() {
@@ -53,7 +52,7 @@ public class GeneratorTest {
     @Test
     public void testReduce_Bulk() throws IOException {
         Generator generator = new Generator(9);
-        Path baseDir = ROOT_DIR.resolve("data-failed");
+        Path baseDir = Paths.get("data-failed");
         Path inDir = baseDir.resolve("failed");
         Path outDir = baseDir.resolve("ok-fixed");
         createDirectories(outDir);
@@ -82,7 +81,7 @@ public class GeneratorTest {
     public void testGenerate_Complex() throws IOException {
         int complexityGenerateLimit = 31;
         int complexitySaveLimit = 81;
-        Path basedDir = ROOT_DIR.resolve("data-" + getCurrentTime());
+        Path basedDir = Paths.get("data-" + getCurrentTime());
         Path okDir = basedDir.resolve("ok");
         Path failedDir = basedDir.resolve("failed");
         createDirectories(okDir);
@@ -135,8 +134,8 @@ public class GeneratorTest {
 
     @Test
     public void testMergeFiles() throws Exception {
-        Path inDir = ROOT_DIR.resolve("data-failed");
-        Path outDir = ROOT_DIR.resolve("data").resolve("ready");
+        Path inDir = Paths.get("data-failed");
+        Path outDir = Paths.get("data").resolve("ready");
         createDirectories(outDir);
 
         streamFiles(inDir.toFile())
