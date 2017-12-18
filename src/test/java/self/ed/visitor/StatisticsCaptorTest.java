@@ -24,7 +24,7 @@ public class StatisticsCaptorTest {
     public void testStatistics() {
         Path baseDir = Paths.get("data");
         Path inDir = baseDir.resolve("ready");
-        Path outFile = baseDir.resolve("statistics-" + getCurrentTime() + ".txt");
+        Path outFile = baseDir.resolve("statistics.txt");
 
         List<Integer[][]> tables = streamFiles(inDir.toFile())
                 .map(Utils::readFile)
