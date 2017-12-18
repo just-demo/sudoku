@@ -1,4 +1,4 @@
-package self.ed;
+package self.ed.solver;
 
 import java.util.HashSet;
 import java.util.Set;

@@ -2,21 +2,19 @@ package self.ed.visitor;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
-import self.ed.SudokuUtils;
+import self.ed.util.Utils;
 import self.ed.solver.CleverSolver;
-import self.ed.solver.SimpleSolver;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
-import static self.ed.SudokuUtils.*;
+import static self.ed.util.Utils.*;
 import static self.ed.visitor.StatisticsCaptor.COMPLEXITY_COMPARATOR;
 
 public class StatisticsCaptorTest {
@@ -29,10 +27,10 @@ public class StatisticsCaptorTest {
         Path outFile = baseDir.resolve("statistics-" + getCurrentTime() + ".txt");
 
         List<Integer[][]> tables = streamFiles(inDir.toFile())
-                .map(SudokuUtils::readFile)
+                .map(Utils::readFile)
                 .flatMap(file -> stream(file.split("\n")))
                 .map(String::trim)
-                .map(SudokuUtils::parseSimpleString)
+                .map(Utils::parseSimpleString)
                 .collect(toList());
 
         AtomicInteger progress = new AtomicInteger();

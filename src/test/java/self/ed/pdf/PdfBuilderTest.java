@@ -17,7 +17,7 @@ import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
-import static self.ed.SudokuUtils.*;
+import static self.ed.util.Utils.*;
 
 public class PdfBuilderTest {
     private static final Path ROOT_DIR = Paths.get("C:\\Users\\pc\\Desktop\\projects\\sudoku");

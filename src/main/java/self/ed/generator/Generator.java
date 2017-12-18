@@ -1,6 +1,7 @@
-package self.ed;
+package self.ed.generator;
 
 import org.apache.commons.lang3.tuple.Pair;
+import self.ed.solver.Cell;
 import self.ed.exception.ComplexityLimitException;
 import self.ed.exception.MultipleSolutionsException;
 import self.ed.exception.NoSolutionException;
@@ -12,15 +13,15 @@ import static java.util.Collections.*;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.IntStream.rangeClosed;
-import static self.ed.SudokuUtils.copy;
-import static self.ed.SudokuUtils.countOpen;
+import static self.ed.util.Utils.copy;
+import static self.ed.util.Utils.countOpen;
 
-public class SudokuGenerator {
+public class Generator {
     private int size;
     private int blockSize;
     private Set<Integer> values;
 
-    public SudokuGenerator(int size) {
+    public Generator(int size) {
         this.size = size;
         this.blockSize = (int) Math.sqrt(size);
         this.values = rangeClosed(1, size).boxed().collect(toSet());

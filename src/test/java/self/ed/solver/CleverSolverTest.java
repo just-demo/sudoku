@@ -4,7 +4,7 @@ import org.junit.Test;
 import self.ed.visitor.StatisticsCaptor;
 
 import static org.junit.Assert.assertEquals;
-import static self.ed.SudokuUtils.*;
+import static self.ed.util.Utils.*;
 
 public class CleverSolverTest {
     @Test

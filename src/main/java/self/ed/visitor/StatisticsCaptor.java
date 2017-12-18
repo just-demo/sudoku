@@ -3,7 +3,7 @@ package self.ed.visitor;
 import java.util.Comparator;
 
 import static java.util.Comparator.comparing;
-import static self.ed.SudokuUtils.join;
+import static self.ed.util.Utils.join;
 
 public class StatisticsCaptor implements Visitor {
     public static Comparator<StatisticsCaptor> COMPLEXITY_COMPARATOR = comparing(StatisticsCaptor::getMinGuesses)

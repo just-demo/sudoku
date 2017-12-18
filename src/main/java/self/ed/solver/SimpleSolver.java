@@ -1,6 +1,5 @@
 package self.ed.solver;
 
-import self.ed.Cell;
 import self.ed.exception.MultipleSolutionsException;
 import self.ed.exception.NoSolutionException;
 import self.ed.exception.TimeLimitException;
@@ -12,7 +11,7 @@ import static java.util.Collections.emptySet;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.IntStream.rangeClosed;
-import static self.ed.SudokuUtils.copy;
+import static self.ed.util.Utils.copy;
 import static self.ed.visitor.Visitor.*;
 
 public class SimpleSolver {

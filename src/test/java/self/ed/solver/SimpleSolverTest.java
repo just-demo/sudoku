@@ -1,10 +1,9 @@
 package self.ed.solver;
 
 import org.junit.Test;
-import self.ed.solver.SimpleSolver;
 
 import static org.junit.Assert.assertEquals;
-import static self.ed.SudokuUtils.*;
+import static self.ed.util.Utils.*;
 
 public class SimpleSolverTest {
     @Test

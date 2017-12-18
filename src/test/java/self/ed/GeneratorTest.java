@@ -3,6 +3,8 @@ package self.ed;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.junit.Test;
 import self.ed.exception.ComplexityLimitException;
+import self.ed.generator.Generator;
+import self.ed.util.Utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,35 +27,35 @@ import static java.util.stream.Collectors.joining;
 import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.apache.commons.io.FileUtils.writeStringToFile;
 import static org.junit.Assert.assertEquals;
-import static self.ed.SudokuUtils.*;
+import static self.ed.util.Utils.*;
 
-public class SudokuGeneratorTest {
+public class GeneratorTest {
     private static final Path ROOT_DIR = Paths.get("C:\\Users\\pc\\Desktop\\projects\\sudoku");
 
     @Test
     public void testReduce_AlreadyMinimal() {
         Integer[][] input = parseFile(readFile("input-21.txt"));
-        Integer[][] output = new SudokuGenerator(9).reduce(input);
+        Integer[][] output = new Generator(9).reduce(input);
         assertEquals(asString(input), asString(output));
     }
 
     @Test
     public void testReduce_MinusOne() {
         Integer[][] input = parseFile(readFile("input-22.txt"));
-        Integer[][] output = new SudokuGenerator(9).reduce(input);
+        Integer[][] output = new Generator(9).reduce(input);
         assertEquals(countOpen(input) - 1, countOpen(output));
     }
 
     @Test
     public void testReduce_MinusTwo() {
         Integer[][] input = parseFile(readFile("input-24.txt"));
-        Integer[][] output = new SudokuGenerator(9).reduce(input);
+        Integer[][] output = new Generator(9).reduce(input);
         assertEquals(countOpen(input) - 2, countOpen(output));
     }
 
     @Test
     public void testReduce_Bulk() throws IOException {
-        SudokuGenerator generator = new SudokuGenerator(9);
+        Generator generator = new Generator(9);
         Path baseDir = ROOT_DIR.resolve("data-failed");
         Path inDir = baseDir.resolve("failed");
         Path outDir = baseDir.resolve("ok-fixed");
@@ -87,7 +89,7 @@ public class SudokuGeneratorTest {
         createDirectories(okDir);
         createDirectories(failedDir);
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        SudokuGenerator generator = new SudokuGenerator(9);
+        Generator generator = new Generator(9);
 
         AtomicLong sudokuNumber = new AtomicLong();
         AtomicLong openMin = new AtomicLong(Long.MAX_VALUE);
@@ -144,7 +146,7 @@ public class SudokuGeneratorTest {
                 .forEach((group, files) -> {
                     Path outFile = outDir.resolve(group + ".txt");
                     String out = files.stream()
-                            .map(SudokuUtils::readFile)
+                            .map(Utils::readFile)
                             .map(content -> content.replaceAll("\\s", ""))
                             .collect(joining("\n"));
                     writeFile(outFile.toFile(), out);

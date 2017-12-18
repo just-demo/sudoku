@@ -1,4 +1,4 @@
-package self.ed;
+package self.ed.util;
 
 import org.apache.commons.io.IOUtils;
 
@@ -19,7 +19,7 @@ import static java.util.stream.Collectors.toList;
 import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.apache.commons.io.FileUtils.writeStringToFile;
 
-public class SudokuUtils {
+public class Utils {
     private static final String EMPTY_VALUE = ".";
 
     public static String asString(Integer[][] matrix) {
@@ -69,7 +69,7 @@ public class SudokuUtils {
     public static Integer[][] parseFile(String file) {
         return stream(file.split("\n"))
                 .map(String::trim)
-                .map(SudokuUtils::parseLine)
+                .map(Utils::parseLine)
                 .toArray(Integer[][]::new);
     }
 
@@ -84,7 +84,7 @@ public class SudokuUtils {
     private static Integer[] parseLine(String line) {
         return stream(line.split(" "))
                 .map(String::trim)
-                .map(SudokuUtils::parseCell)
+                .map(Utils::parseCell)
                 .toArray(Integer[]::new);
     }
 
@@ -110,7 +110,7 @@ public class SudokuUtils {
     }
 
     public static Stream<File> streamFiles(File dir) {
-        return dir.isDirectory() ? stream(dir.listFiles()).flatMap(SudokuUtils::streamFiles) : Stream.of(dir);
+        return dir.isDirectory() ? stream(dir.listFiles()).flatMap(Utils::streamFiles) : Stream.of(dir);
     }
 
     public static String getCurrentTime() {
