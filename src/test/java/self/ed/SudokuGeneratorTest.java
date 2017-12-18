@@ -79,8 +79,8 @@ public class SudokuGeneratorTest {
 
     @Test
     public void testGenerate_Complex() throws IOException {
-        int complexityGenerateLimit = 32;
-        int complexitySaveLimit = 23;
+        int complexityGenerateLimit = 30;
+        int complexitySaveLimit = 81;
         Path basedDir = ROOT_DIR.resolve("data-" + getCurrentTime());
         Path okDir = basedDir.resolve("ok");
         Path failedDir = basedDir.resolve("failed");
@@ -95,7 +95,7 @@ public class SudokuGeneratorTest {
             System.out.println("Sudoku " + sudokuNumber.incrementAndGet());
             Future<Integer[][]> generateFuture = executor.submit(() -> generator.generate(complexityGenerateLimit));
             try {
-                Integer[][] result = generateFuture.get(2, SECONDS);
+                Integer[][] result = generateFuture.get(3, SECONDS);
                 Long openCount = countOpen(result);
                 Integer[][] res = result;
                 Future<Integer[][]> minimizeFuture = executor.submit(() -> generator.reduce(res));
@@ -127,7 +127,7 @@ public class SudokuGeneratorTest {
                 generateFuture.cancel(true);
                 return ExceptionUtils.indexOfType(e, ComplexityLimitException.class) > -1 ? 200L : 100L;
             }
-        }).limit(10000).collect(groupingBy(Function.identity(), TreeMap::new, counting()));
+        }).limit(100).collect(groupingBy(Function.identity(), TreeMap::new, counting()));
 
         System.out.println(counts);
     }

@@ -5,7 +5,6 @@ import self.ed.exception.ComplexityLimitException;
 import self.ed.exception.MultipleSolutionsException;
 import self.ed.exception.NoSolutionException;
 import self.ed.solver.CleverSolver;
-import self.ed.solver.SimpleSolver;
 
 import java.util.*;
 
@@ -80,7 +79,7 @@ public class SudokuGenerator {
         }
 
         try {
-            new SimpleSolver(initialValues).solve();
+            new CleverSolver(initialValues).solve();
             return initialValues;
         } catch (MultipleSolutionsException e) {
             List<Cell> open = new ArrayList<>();
