@@ -186,4 +186,36 @@ public class GeneratorTest {
         }
         return distance;
     }
+
+    @Test
+    public void testCompress() throws IOException {
+        Path inDir = Paths.get("data").resolve("ready");
+        Path outFile = Paths.get("data").resolve("compressed.txt");
+
+        String out = streamFiles(inDir.toFile())
+                .map(Utils::readFile)
+                .flatMap(file -> stream(file.split("\n")))
+                .map(String::trim)
+                .filter(StringUtils::isNotEmpty)
+                .map(this::compress)
+                // .map(this::decompress)
+                .collect(joining("\n"));
+
+        createDirectories(outFile.getParent());
+        writeFile(outFile.toFile(), out);
+    }
+
+    private String compress(String str) {
+        for (char i = 'z'; i >= 'a'; i--) {
+            str = str.replaceAll("\\.{" + (i - 'a' + 1) + "}", String.valueOf(i));
+        }
+        return str;
+    }
+
+    private String decompress(String str) {
+        for (char i = 'z'; i >= 'a'; i--) {
+            str = str.replaceAll(String.valueOf(i), StringUtils.repeat('.', i - 'a' + 1));
+        }
+        return str;
+    }
 }
