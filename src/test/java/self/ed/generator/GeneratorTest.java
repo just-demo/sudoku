@@ -17,12 +17,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
-import java.util.regex.Matcher;
 import java.util.stream.Stream;
 
 import static java.lang.System.currentTimeMillis;
 import static java.nio.file.Files.createDirectories;
-import static java.nio.file.Files.list;
 import static java.util.Arrays.stream;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.*;
