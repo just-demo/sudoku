@@ -1,5 +1,6 @@
 package self.ed.visitor;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 import self.ed.solver.CleverSolver;
@@ -30,6 +31,7 @@ public class StatisticsCaptorTest {
                 .map(Utils::readFile)
                 .flatMap(file -> stream(file.split("\n")))
                 .map(String::trim)
+                .filter(StringUtils::isNotEmpty)
                 .map(Utils::parseSimpleString)
                 .collect(toList());
 

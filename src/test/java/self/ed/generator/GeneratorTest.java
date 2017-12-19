@@ -1,6 +1,8 @@
 package self.ed.generator;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 import self.ed.exception.ComplexityLimitException;
 import self.ed.util.Utils;
@@ -9,20 +11,21 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
+import java.util.regex.Matcher;
 import java.util.stream.Stream;
 
 import static java.lang.System.currentTimeMillis;
 import static java.nio.file.Files.createDirectories;
+import static java.nio.file.Files.list;
+import static java.util.Arrays.stream;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.*;
-import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.junit.Assert.assertEquals;
 import static self.ed.util.Utils.*;
 
@@ -57,10 +60,10 @@ public class GeneratorTest {
         Path outDir = baseDir.resolve("ok-fixed");
         createDirectories(outDir);
         AtomicLong minimizedCount = new AtomicLong();
-        File[] files = inDir.toFile().listFiles();
+        List<File> files = listFiles(inDir.toFile());
         for (File file : files) {
             System.out.println(file.getName());
-            Integer[][] input = parseFile(readFileToString(file));
+            Integer[][] input = parseFile(readFile(file));
             long startTime = currentTimeMillis();
             Integer[][] output = generator.reduce(input);
             System.out.println("Time: " + (currentTimeMillis() - startTime) / 1000d + "s");
@@ -74,7 +77,7 @@ public class GeneratorTest {
             }
             file.delete();
         }
-        System.out.println("Minimized " + minimizedCount.get() + " of " + files.length);
+        System.out.println("Minimized " + minimizedCount.get() + " of " + files.size());
     }
 
     @Test
@@ -100,7 +103,7 @@ public class GeneratorTest {
                 Integer[][] res = result;
                 Future<Integer[][]> minimizeFuture = executor.submit(() -> generator.reduce(res));
                 try {
-                    result = minimizeFuture.get(60, SECONDS);
+                    result = minimizeFuture.get(600, SECONDS);
                     Long newOpenCount = countOpen(result);
                     if (!newOpenCount.equals(openCount)) {
                         System.out.println("Minimized: " + openCount + " => " + newOpenCount);
@@ -127,7 +130,7 @@ public class GeneratorTest {
                 generateFuture.cancel(true);
                 return ExceptionUtils.indexOfType(e, ComplexityLimitException.class) > -1 ? 200L : 100L;
             }
-        }).limit(100).collect(groupingBy(Function.identity(), TreeMap::new, counting()));
+        }).limit(10000).collect(groupingBy(Function.identity(), TreeMap::new, counting()));
 
         System.out.println(counts);
     }
@@ -148,5 +151,41 @@ public class GeneratorTest {
                             .collect(joining("\n"));
                     appendFile(outFile.toFile(), out + "\n");
                 });
+    }
+
+    @Test
+    public void testDuplicates() throws Exception {
+        Path inDir = Paths.get("data").resolve("ready");
+
+        List<String> tables = streamFiles(inDir.toFile())
+                .map(Utils::readFile)
+                .flatMap(file -> stream(file.split("\n")))
+                .map(String::trim)
+                .filter(StringUtils::isNotEmpty)
+                .collect(toList());
+
+        int n = tables.size();
+        Map<Pair<String, String>, Integer> distances = new HashMap<>();
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
+                distances.put(Pair.of(tables.get(i), tables.get(j)), getDistance(tables.get(i), tables.get(j)));
+            }
+        }
+
+        System.out.println(Collections.min(distances.values()));
+        System.out.println(Collections.max(distances.values()));
+        System.out.println(distances.values().stream().mapToInt(Integer::intValue).average().getAsDouble());
+    }
+
+    private int getDistance(String s1, String s2) {
+        int min = Math.min(s1.length(), s2.length());
+        int max = Math.max(s1.length(), s2.length());
+        int distance = max - min;
+        for (int i = 0; i < min; i++) {
+            if (s1.charAt(i) != s2.charAt(i)) {
+                distance++;
+            }
+        }
+        return distance;
     }
 }
