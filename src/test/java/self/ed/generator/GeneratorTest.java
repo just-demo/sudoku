@@ -82,18 +82,16 @@ public class GeneratorTest {
     public void testGenerate_Complex() throws IOException {
         int complexityGenerateLimit = 31;
         int complexitySaveLimit = 81;
-        Path basedDir = Paths.get("data").resolve("generated").resolve(getCurrentTime());
-        Path okDir = basedDir.resolve("ok");
-        Path failedDir = basedDir.resolve("failed");
-        createDirectories(okDir);
-        createDirectories(failedDir);
+        Path readyDir = Paths.get("data").resolve("ready");
+        Path failedDir = Paths.get("data").resolve("failed").resolve(getCurrentTime());
+        createDirectories(readyDir);
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Generator generator = new Generator(9);
 
-        AtomicLong sudokuNumber = new AtomicLong();
+        AtomicLong counter = new AtomicLong();
         AtomicLong openMin = new AtomicLong(Long.MAX_VALUE);
         Map<Long, Long> counts = Stream.generate(() -> {
-            System.out.println("Sudoku " + sudokuNumber.incrementAndGet());
+            System.out.println("Sudoku " + counter.incrementAndGet());
             Future<Integer[][]> generateFuture = executor.submit(() -> generator.generate(complexityGenerateLimit));
             try {
                 Integer[][] result = generateFuture.get(2, SECONDS);
@@ -110,8 +108,9 @@ public class GeneratorTest {
                 } catch (Exception e) {
                     minimizeFuture.cancel(true);
                     System.out.println("Failed to reduce: " + openCount);
-                    Path file = failedDir.resolve(openCount + "-" + getCurrentTime() + "-" + sudokuNumber.get() + ".txt");
-                    writeFile(file.toFile(), asString(result));
+                    createDirectories(failedDir);
+                    Path failedFile = failedDir.resolve(openCount + "-" + getCurrentTime() + "-" + counter.get() + ".txt");
+                    writeFile(failedFile.toFile(), asString(result));
                     return 300L;
                 }
                 Long newMin = openCount;
@@ -119,8 +118,8 @@ public class GeneratorTest {
                 System.out.println("Open: " + openCount + "/" + openMin.get());
                 if (openCount <= complexitySaveLimit) {
                     System.out.println(asString(result));
-                    Path file = okDir.resolve(openCount + "-" + getCurrentTime() + "-" + sudokuNumber.get() + ".txt");
-                    writeFile(file.toFile(), asString(result));
+                    Path readyFile = readyDir.resolve(openCount + ".txt");
+                    appendFile(readyFile.toFile(), asSimpleString(result) + "\n");
                 }
                 System.out.println("------------------");
                 return openCount;
