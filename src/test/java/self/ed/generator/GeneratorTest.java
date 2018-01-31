@@ -81,17 +81,17 @@ public class GeneratorTest {
     @Test
     public void testGenerate_Complex() throws IOException {
         int complexityGenerateLimit = 31;
-        int complexitySaveLimit = 81;
         Path readyDir = Paths.get("data").resolve("ready");
         Path failedDir = Paths.get("data").resolve("failed").resolve(getCurrentTime());
         createDirectories(readyDir);
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Generator generator = new Generator(9);
 
-        AtomicLong counter = new AtomicLong();
+        AtomicLong totalCounter = new AtomicLong();
+        AtomicLong successCounter = new AtomicLong();
         AtomicLong openMin = new AtomicLong(Long.MAX_VALUE);
         Map<Long, Long> counts = Stream.generate(() -> {
-            System.out.println("Sudoku " + counter.incrementAndGet());
+            System.out.println("Generating " + totalCounter.incrementAndGet());
             Future<Integer[][]> generateFuture = executor.submit(() -> generator.generate(complexityGenerateLimit));
             try {
                 Integer[][] result = generateFuture.get(2, SECONDS);
@@ -109,18 +109,18 @@ public class GeneratorTest {
                     minimizeFuture.cancel(true);
                     System.out.println("Failed to reduce: " + openCount);
                     createDirectories(failedDir);
-                    Path failedFile = failedDir.resolve(openCount + "-" + getCurrentTime() + "-" + counter.get() + ".txt");
+                    Path failedFile = failedDir.resolve(openCount + "-" + getCurrentTime() + "-" + totalCounter.get() + ".txt");
                     writeFile(failedFile.toFile(), asString(result));
                     return 300L;
                 }
                 Long newMin = openCount;
                 openMin.getAndUpdate(oldMin -> Math.min(oldMin, newMin));
-                System.out.println("Open: " + openCount + "/" + openMin.get());
-                if (openCount <= complexitySaveLimit) {
-                    System.out.println(asString(result));
-                    Path readyFile = readyDir.resolve(openCount + ".txt");
-                    appendFile(readyFile.toFile(), asSimpleString(result) + "\n");
-                }
+                successCounter.incrementAndGet();
+                long successPercentage = 100 * successCounter.get() / totalCounter.get();
+                System.out.println("Generated: " + openCount + "/" + openMin.get() + " - " + successCounter.get() + "/" + successPercentage + "%");
+                System.out.println(asString(result));
+                Path readyFile = readyDir.resolve(openCount + ".txt");
+                appendFile(readyFile.toFile(), asSimpleString(result) + "\n");
                 System.out.println("------------------");
                 return openCount;
             } catch (Exception e) {
