@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 import static java.lang.System.currentTimeMillis;
 import static java.nio.file.Files.createDirectories;
 import static java.util.Arrays.stream;
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.*;
 import static org.junit.Assert.assertEquals;
@@ -99,7 +100,7 @@ public class GeneratorTest {
                 Integer[][] res = result;
                 Future<Integer[][]> minimizeFuture = executor.submit(() -> generator.reduce(res));
                 try {
-                    result = minimizeFuture.get(600, SECONDS);
+                    result = minimizeFuture.get(10, MINUTES);
                     Long newOpenCount = countOpen(result);
                     if (!newOpenCount.equals(openCount)) {
                         System.out.println("Minimized: " + openCount + " => " + newOpenCount);
