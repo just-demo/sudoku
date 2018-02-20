@@ -128,7 +128,7 @@ public class GeneratorTest {
                 generateFuture.cancel(true);
                 return ExceptionUtils.indexOfType(e, ComplexityLimitException.class) > -1 ? 200L : 100L;
             }
-        }).limit(100000).collect(groupingBy(Function.identity(), TreeMap::new, counting()));
+        }).limit(1000000).collect(groupingBy(Function.identity(), TreeMap::new, counting()));
 
         System.out.println(counts);
     }
