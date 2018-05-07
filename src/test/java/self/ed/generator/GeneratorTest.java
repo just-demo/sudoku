@@ -95,7 +95,7 @@ public class GeneratorTest {
             System.out.println("Generating " + totalCounter.incrementAndGet());
             Future<Integer[][]> generateFuture = executor.submit(() -> generator.generate(complexityGenerateLimit));
             try {
-                Integer[][] result = generateFuture.get(2, SECONDS);
+                Integer[][] result = generateFuture.get(3, SECONDS);
                 Long openCount = countOpen(result);
                 Integer[][] res = result;
                 Future<Integer[][]> minimizeFuture = executor.submit(() -> generator.reduce(res));
