@@ -59,6 +59,20 @@ public class StatisticsCaptorTest {
     }
 
     @Test
+    public void testCount() {
+        Path baseDir = Paths.get("data");
+        Path inDir = baseDir.resolve("ready");
+
+        System.out.println(streamFiles(inDir.toFile())
+                .map(Utils::readFile)
+                .flatMap(file -> stream(file.split("\n")))
+                .map(String::trim)
+                .filter(StringUtils::isNotEmpty)
+                .count());
+
+    }
+
+    @Test
     public void testStatistics() {
         Path baseDir = Paths.get("data");
         Path inDir = baseDir.resolve("ready");
