@@ -6,10 +6,9 @@ import static java.util.Comparator.comparing;
 import static self.ed.util.Utils.join;
 
 public class StatisticsCaptor implements Visitor {
-    public static Comparator<StatisticsCaptor> COMPLEXITY_COMPARATOR = comparing(StatisticsCaptor::getMinGuesses)
+    public static Comparator<StatisticsCaptor> COMPLEXITY_COMPARATOR = comparing(StatisticsCaptor::getOpenings)
             .thenComparing(StatisticsCaptor::getMaxGuesses)
-            .thenComparing(StatisticsCaptor::getValueOpenings)
-            .thenComparing(StatisticsCaptor::getCellOpenings)
+            .thenComparing(StatisticsCaptor::getMinGuesses)
             .thenComparing(StatisticsCaptor::getInitial);
 
     private int initial = -1;
@@ -55,6 +54,10 @@ public class StatisticsCaptor implements Visitor {
 
     public int getValueOpenings() {
         return valueOpenings;
+    }
+
+    public int getOpenings() {
+        return cellOpenings + valueOpenings;
     }
 
     public int getMaxGuesses() {

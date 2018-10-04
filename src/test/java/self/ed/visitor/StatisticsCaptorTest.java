@@ -1,7 +1,6 @@
 package self.ed.visitor;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 import self.ed.solver.CleverSolver;
 import self.ed.util.Utils;
@@ -11,13 +10,12 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
+import java.util.concurrent.atomic.AtomicLong;
 
+import static java.lang.System.currentTimeMillis;
 import static java.util.Arrays.stream;
 import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.*;
 import static self.ed.util.Utils.*;
 import static self.ed.visitor.StatisticsCaptor.COMPLEXITY_COMPARATOR;
 
@@ -76,7 +74,7 @@ public class StatisticsCaptorTest {
     public void testStatistics() {
         Path baseDir = Paths.get("data");
         Path inDir = baseDir.resolve("ready");
-        Path outFile = baseDir.resolve("statistics.txt");
+        Path outFile = baseDir.resolve("statistics-full.txt");
 
         List<Integer[][]> tables = streamFiles(inDir.toFile())
                 .map(Utils::readFile)
@@ -87,17 +85,57 @@ public class StatisticsCaptorTest {
                 .collect(toList());
 
         AtomicInteger progress = new AtomicInteger();
+        AtomicLong maxTime = new AtomicLong(Long.MIN_VALUE);
         String out = tables.stream()
                 .map(table -> {
                     System.out.println(progress.incrementAndGet() + "/" + tables.size());
                     StatisticsCaptor statistics = new StatisticsCaptor();
-                    new CleverSolver(table, statistics).solve();
-                    return Pair.of(asSimpleString(table), statistics);
+                    long startTime = currentTimeMillis();
+                    Integer[][] solution = new CleverSolver(table, statistics).solve();
+                    long time = currentTimeMillis() - startTime;
+                    maxTime.getAndAccumulate(time, Math::max);
+                    return new StatisticsWrapper(asSimpleString(table), asSimpleString(solution), time, statistics);
                 })
-                .sorted(comparing((Function<Pair<String, StatisticsCaptor>, StatisticsCaptor>) Pair::getValue, COMPLEXITY_COMPARATOR)
-                        .thenComparing(Pair::getKey))
-                .map(pair -> pair.getKey() + " | " + pair.getValue())
+                .sorted(comparing(StatisticsWrapper::getStatistics, COMPLEXITY_COMPARATOR)
+                        .thenComparing(StatisticsWrapper::getInput))
+                .map(StatisticsWrapper::toString)
                 .collect(joining("\n"));
+        System.out.println("Max time = " + maxTime.get());
         writeFile(outFile.toFile(), out + "\n");
+    }
+
+    private static class StatisticsWrapper {
+        String input;
+        String output;
+        long time;
+        StatisticsCaptor statistics;
+
+        StatisticsWrapper(String input, String output, long time, StatisticsCaptor statistics) {
+            this.input = input;
+            this.output = output;
+            this.time = time;
+            this.statistics = statistics;
+        }
+
+        String getInput() {
+            return input;
+        }
+
+        String getOutput() {
+            return output;
+        }
+
+        long getTime() {
+            return time;
+        }
+
+        StatisticsCaptor getStatistics() {
+            return statistics;
+        }
+
+        @Override
+        public String toString() {
+            return join(" | ", input, output, time, statistics.getOpenings(), statistics.getCellOpenings(), statistics.getValueOpenings(), statistics.getMaxGuesses(), statistics.getMinGuesses(), statistics.getInitial());
+        }
     }
 }
