@@ -2,7 +2,8 @@ package self.ed.pdf;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import self.ed.solver.CleverSolver;
 import self.ed.visitor.StatisticsCaptor;
 

@@ -1,9 +1,11 @@
 package self.ed.solver;
 
-import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static self.ed.util.Utils.*;
+
+import org.junit.jupiter.api.Test;
 
 public class SimpleSolverTest {
     @Test

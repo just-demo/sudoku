@@ -3,7 +3,8 @@ package self.ed.generator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import self.ed.exception.ComplexityLimitException;
 import self.ed.util.Utils;
 
@@ -25,7 +26,9 @@ import static java.util.Arrays.stream;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.*;
-import static org.junit.Assert.assertEquals;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import static self.ed.util.Utils.*;
 
 public class GeneratorTest {
