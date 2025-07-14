@@ -2,7 +2,6 @@ package self.ed.solver;
 
 import static java.lang.System.currentTimeMillis;
 import static java.util.Arrays.stream;
-import static java.util.stream.Collectors.toList;
 import static self.ed.util.Utils.readFile;
 import static self.ed.util.Utils.streamFiles;
 
@@ -35,7 +34,7 @@ public class TestSpeed {
   public static void main_(String[] args) {
     StringUtils.strip("asd", "\"");
     Path readyDir = Paths.get("data").resolve("ready");
-    List<File> files = streamFiles(readyDir.toFile()).sorted().collect(toList());
+    List<File> files = streamFiles(readyDir.toFile()).sorted().toList();
     Map<String, Long> counts = files.stream()
         .collect(Collectors.toMap(File::getName, TestSpeed::countLines));
     long count = counts.values().stream().mapToLong(i -> i).sum();

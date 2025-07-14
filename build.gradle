@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id("io.freefair.lombok") version "8.14"
 }
 
 group = 'just.demo'
@@ -11,9 +12,7 @@ repositories {
 
 dependencies {
     implementation("org.apache.commons:commons-lang3:3.18.0")
-    implementation("commons-io:commons-io:2.19.0")
     implementation("com.itextpdf:itextpdf:5.5.13.4")
-    implementation("com.google.guava:guava:33.4.8-jre")
 
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'

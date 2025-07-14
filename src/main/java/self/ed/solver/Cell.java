@@ -3,44 +3,36 @@ package self.ed.solver;
 import java.util.HashSet;
 import java.util.Set;
 
+import lombok.Getter;
+
+@Getter
 public class Cell {
-    private int row;
-    private int col;
-    private int block;
-    private Set<Integer> candidates;
 
-    public Cell(int row, int col, int block, Set<Integer> candidates) {
-        this.row = row;
-        this.col = col;
-        this.block = block;
-        this.candidates = new HashSet<>(candidates);
-    }
+  private final int row;
+  private final int col;
+  private final int block;
+  private final Set<Integer> candidates;
 
-    public boolean isRelated(Cell cell) {
-        return row == cell.row || col == cell.col || block == cell.block;
-    }
+  public Cell(int row, int col, int block, Set<Integer> candidates) {
+    this.row = row;
+    this.col = col;
+    this.block = block;
+    this.candidates = new HashSet<>(candidates);
+  }
 
-    public void removeCandidate(Integer value) {
-        candidates.remove(value);
-    }
+  public boolean isRelated(Cell cell) {
+    return row == cell.row || col == cell.col || block == cell.block;
+  }
 
-    public int countCandidates() {
-        return candidates.size();
-    }
+  public void removeCandidate(Integer value) {
+    candidates.remove(value);
+  }
 
-    public Set<Integer> getCandidates() {
-        return candidates;
-    }
+  public int countCandidates() {
+    return candidates.size();
+  }
 
-    public Integer getCandidate() {
-        return candidates.iterator().next();
-    }
-
-    public int getRow() {
-        return row;
-    }
-
-    public int getCol() {
-        return col;
-    }
+  public Integer getCandidate() {
+    return candidates.iterator().next();
+  }
 }
