@@ -35,7 +35,7 @@ import self.ed.generator.Reducer;
 public class RunGenerator {
 
   private static final Duration GENERATOR_TIMEOUT = Duration.ofSeconds(3);
-  private static final Duration REDUCER_TIMEOUT = Duration.ofSeconds(10);
+  private static final Duration REDUCER_TIMEOUT = Duration.ofMinutes(10);
 
   public static void main(String[] args) {
     generateMany();
@@ -43,11 +43,10 @@ public class RunGenerator {
 
   private static void generateMany() {
     long start = currentTimeMillis();
-    int complexityGenerateLimit = 31;
     Path reducerFailedDir = REDUCER_FAILED_DIR.resolve(getCurrentTime());
     Map<Long, Long> counts;
     try (ExecutorService executor = newSingleThreadExecutor()) {
-      Generator generator = new Generator(9);
+      Generator generator = new Generator(9, 31);
       Reducer reducer = new Reducer();
 
       AtomicLong totalCounter = new AtomicLong();
@@ -55,7 +54,7 @@ public class RunGenerator {
       AtomicLong openMin = new AtomicLong(MAX_VALUE);
       counts = Stream.generate(() -> {
             System.out.println("Generating " + totalCounter.incrementAndGet());
-            Future<Integer[][]> generateFuture = executor.submit(() -> generator.generate(complexityGenerateLimit));
+            Future<Integer[][]> generateFuture = executor.submit(generator::generate);
             try {
               Integer[][] result = generateFuture.get(GENERATOR_TIMEOUT.toSeconds(), SECONDS);
               Long openCount = countOpen(result);
@@ -81,15 +80,15 @@ public class RunGenerator {
               openMin.getAndUpdate(oldMin -> Math.min(oldMin, newMin));
               successCounter.incrementAndGet();
               long successPercentage = 100 * successCounter.get() / totalCounter.get();
-              System.out.println(
-                  "Generated: " + openCount + "/" + openMin.get() + " - " + successCounter.get() + "/" + successPercentage
-                      + "%");
+              System.out.println("Generated: " + openCount + "/" + openMin.get() + " - " + successCounter.get() + "/" +
+                  successPercentage + "%");
               System.out.println(toString2D(result));
               Path readyFile = READY_DIR.resolve(openCount + ".txt");
               appendFile(readyFile.toFile(), toString1D(result) + "\n");
               System.out.println("------------------");
               return openCount;
             } catch (Exception e) {
+              System.out.println("Failed to generate");
               generateFuture.cancel(true);
               return ExceptionUtils.indexOfType(e, ComplexityLimitException.class) > -1 ? 200L : 100L;
             }
