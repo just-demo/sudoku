@@ -1,14 +1,13 @@
 package self.ed.generator;
 
-import static java.util.Collections.emptySet;
 import static java.util.Collections.shuffle;
 import static java.util.Collections.singleton;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.IntStream.rangeClosed;
 
-import static self.ed.util.Utils.copy;
-import static self.ed.util.Utils.countOpen;
+import static self.ed.util.SudokuUtils.copy;
+import static self.ed.util.SudokuUtils.countOpen;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,7 +49,7 @@ public class Generator {
     for (int row = 0; row < size; row++) {
       for (int col = 0; col < size; col++) {
         if (initialValues[row][col] != null) {
-          open.add(new Cell(row, col, 0, emptySet()));
+          open.add(new Cell(row, col, 0, Set.of()));
         }
       }
     }
@@ -102,7 +101,7 @@ public class Generator {
           if (value != null) {
             open.add(new Cell(row, col, block, singleton(value)));
           } else {
-            pending.add(new Cell(row, col, block, emptySet()));
+            pending.add(new Cell(row, col, block, Set.of()));
           }
         }
       }

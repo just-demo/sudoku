@@ -1,20 +1,11 @@
 package self.ed.visitor;
 
-import static java.util.Comparator.comparing;
-
-import static self.ed.util.Utils.join;
-
-import java.util.Comparator;
+import static self.ed.util.SudokuUtils.join;
 
 import lombok.Getter;
 
 @Getter
 public class StatisticsCaptor implements Visitor {
-
-  public static Comparator<StatisticsCaptor> COMPLEXITY_COMPARATOR = comparing(StatisticsCaptor::getOpenings)
-      .thenComparing(StatisticsCaptor::getMaxGuesses)
-      .thenComparing(StatisticsCaptor::getMinGuesses)
-      .thenComparing(StatisticsCaptor::getInitial);
 
   private int initial = -1;
   private int minGuesses;

@@ -5,7 +5,7 @@ import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.IntStream.rangeClosed;
 
-import static self.ed.util.Utils.copy;
+import static self.ed.util.SudokuUtils.copy;
 import static self.ed.visitor.Visitor.notifyGuessed;
 import static self.ed.visitor.Visitor.notifyGuessing;
 import static self.ed.visitor.Visitor.notifyInitial;

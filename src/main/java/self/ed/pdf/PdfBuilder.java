@@ -52,35 +52,39 @@ public class PdfBuilder {
     System.out.println(cellFont.getSize());
   }
 
-  public byte[] build(List<Pair<Integer[][], List<String>>> tables) throws DocumentException {
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    Document document = new Document();
-    PdfWriter.getInstance(document, outputStream);
-    document.open();
+  public byte[] build(List<Pair<Integer[][], List<String>>> tables) {
+    try {
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      Document document = new Document();
+      PdfWriter.getInstance(document, outputStream);
+      document.open();
 
-    PdfPTable layout = new PdfPTable(tablesPerLine);
-    layout.setTotalWidth(pageWidth);
-    layout.setLockedWidth(true);
+      PdfPTable layout = new PdfPTable(tablesPerLine);
+      layout.setTotalWidth(pageWidth);
+      layout.setLockedWidth(true);
 
-    List<Pair<Integer[][], List<String>>> tablesSized = new ArrayList<>(tables);
-    while (tablesSized.size() % tablesPerLine != 0) {
-      tablesSized.add(null);
-    }
-
-    tablesSized.forEach(table -> {
-      PdfPCell layoutCell = new PdfPCell();
-      if (table != null) {
-        layoutCell.addElement(createSummary(table.getValue()));
-        layoutCell.addElement(createTable(table.getKey()));
+      List<Pair<Integer[][], List<String>>> tablesSized = new ArrayList<>(tables);
+      while (tablesSized.size() % tablesPerLine != 0) {
+        tablesSized.add(null);
       }
-      layoutCell.setBorder(NO_BORDER);
-      layoutCell.setPaddingBottom(cellWidth * 1.5f);
-      layout.addCell(layoutCell);
-    });
 
-    document.add(layout);
-    document.close();
-    return outputStream.toByteArray();
+      tablesSized.forEach(table -> {
+        PdfPCell layoutCell = new PdfPCell();
+        if (table != null) {
+          layoutCell.addElement(createSummary(table.getValue()));
+          layoutCell.addElement(createTable(table.getKey()));
+        }
+        layoutCell.setBorder(NO_BORDER);
+        layoutCell.setPaddingBottom(cellWidth * 1.5f);
+        layout.addCell(layoutCell);
+      });
+
+      document.add(layout);
+      document.close();
+      return outputStream.toByteArray();
+    } catch (DocumentException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   private Element createSummary(List<String> summaryItems) {
