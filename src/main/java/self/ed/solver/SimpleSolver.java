@@ -24,23 +24,23 @@ import self.ed.visitor.Visitor;
 
 public class SimpleSolver {
 
-  private final Integer[][] solution;
+  private final int[][] solution;
   private final List<Cell> pendingCells = new ArrayList<>();
   private final Visitor[] visitors;
 
-  public SimpleSolver(Integer[][] initialValues, Visitor... visitors) {
+  public SimpleSolver(int[][] initialValues, Visitor... visitors) {
     this.visitors = visitors;
     int size = initialValues.length;
     int blockSize = (int) Math.sqrt(size);
     Set<Integer> values = rangeClosed(1, size).boxed().collect(toSet());
 
-    solution = new Integer[size][size];
+    solution = new int[size][size];
     Map<Cell, Integer> openCells = new HashMap<>();
     for (int row = 0; row < size; row++) {
       for (int col = 0; col < size; col++) {
         int block = blockSize * (row / blockSize) + col / blockSize;
-        Integer value = initialValues[row][col];
-        if (value != null) {
+        int value = initialValues[row][col];
+        if (value != 0) {
           openCells.put(new Cell(row, col, block, emptySet()), value);
         } else {
           pendingCells.add(new Cell(row, col, block, values));
@@ -52,7 +52,7 @@ public class SimpleSolver {
     openCells.forEach(this::open);
   }
 
-  public Integer[][] solve() {
+  public int[][] solve() {
     if (Thread.interrupted()) {
       throw new TimeLimitException();
     }
@@ -65,9 +65,9 @@ public class SimpleSolver {
       } else if (cell.countCandidates() > 1) {
         notifyGuessing(visitors, cell.countCandidates());
 //                System.out.println("Guessing out of " + cell.countCandidates());
-        List<Integer[][]> solutions = new ArrayList<>();
+        List<int[][]> solutions = new ArrayList<>();
         for (Integer value : cell.getCandidates()) {
-          Integer[][] nextGuess = copy(solution);
+          int[][] nextGuess = copy(solution);
           nextGuess[cell.getRow()][cell.getCol()] = value;
           try {
             solutions.add(new SimpleSolver(nextGuess, visitors).solve());

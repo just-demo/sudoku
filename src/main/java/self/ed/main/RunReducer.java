@@ -34,9 +34,9 @@ public class RunReducer {
     List<File> files = listFiles(REDUCER_FAILED_DIR);
     for (File file : files) {
       System.out.println(file.getName());
-      Integer[][] input = fromString2D(readFile(file));
+      int[][] input = fromString2D(readFile(file));
       long startTime = currentTimeMillis();
-      Integer[][] output = reducer.reduce(input);
+      int[][] output = reducer.reduce(input);
       System.out.println("Time: " + (currentTimeMillis() - startTime) / 1000d + "s");
       long inputCount = countOpen(input);
       long outputCount = countOpen(output);
@@ -55,7 +55,7 @@ public class RunReducer {
     List<File> files = listFiles(REDUCER_FIXED_DIR);
     for (File file : files) {
       System.out.println(file.getName());
-      Integer[][] result = fromString2D(readFile(file));
+      int[][] result = fromString2D(readFile(file));
       Long openCount = countOpen(result);
       Path readyFile = READY_DIR.resolve(openCount + ".txt");
       appendFile(readyFile.toFile(), toString1D(result) + "\n");

@@ -32,9 +32,9 @@ public class RunSolver {
 
   private static void solveSingleComplexSudoku() {
     String sudokuStr = ".......9......8.2.7.3.54.....52.................6....88....3..7.9....6..6...8...4";
-    Integer[][] sudoku = fromString1D(sudokuStr);
+    int[][] sudoku = fromString1D(sudokuStr);
     long start = currentTimeMillis();
-    Integer[][] solution = new CleverSolver(sudoku).solve();
+    int[][] solution = new CleverSolver(sudoku).solve();
     System.out.println(toString2D(solution));
     System.out.println("Time: " + (currentTimeMillis() - start));
   }

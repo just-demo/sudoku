@@ -54,13 +54,13 @@ public class RunGenerator {
       AtomicLong openMin = new AtomicLong(MAX_VALUE);
       counts = Stream.generate(() -> {
             System.out.println("Generating " + totalCounter.incrementAndGet());
-            Future<Integer[][]> generateFuture = executor.submit(generator::generate);
+            Future<int[][]> generateFuture = executor.submit(generator::generate);
             try {
-              Integer[][] result = generateFuture.get(GENERATOR_TIMEOUT.toSeconds(), SECONDS);
+              int[][] result = generateFuture.get(GENERATOR_TIMEOUT.toSeconds(), SECONDS);
               Long openCount = countOpen(result);
-              Integer[][] res = result;
+              int[][] res = result;
               System.out.println("Minimizing " + totalCounter.get());
-              Future<Integer[][]> minimizeFuture = executor.submit(() -> reducer.reduce(res));
+              Future<int[][]> minimizeFuture = executor.submit(() -> reducer.reduce(res));
               try {
                 result = minimizeFuture.get(REDUCER_TIMEOUT.toSeconds(), SECONDS);
                 Long newOpenCount = countOpen(result);

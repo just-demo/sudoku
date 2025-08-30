@@ -21,12 +21,12 @@ import self.ed.solver.CleverSolver;
 
 public class Reducer {
 
-  public Integer[][] reduce(Integer[][] initialValues) {
+  public int[][] reduce(int[][] initialValues) {
     int size = initialValues.length;
     List<Cell> open = new ArrayList<>();
     for (int row = 0; row < size; row++) {
       for (int col = 0; col < size; col++) {
-        if (initialValues[row][col] != null) {
+        if (initialValues[row][col] != 0) {
           open.add(new Cell(row, col, 0, Set.of()));
         }
       }
@@ -35,11 +35,11 @@ public class Reducer {
     return reduce(initialValues, open);
   }
 
-  private Integer[][] reduce(Integer[][] initialValues, Collection<Cell> closeCandidates) {
-    Map<Cell, Integer[][]> candidates = new HashMap<>();
+  private int[][] reduce(int[][] initialValues, Collection<Cell> closeCandidates) {
+    Map<Cell, int[][]> candidates = new HashMap<>();
     closeCandidates.forEach(cell -> {
-      Integer[][] nextGuess = copy(initialValues);
-      nextGuess[cell.getRow()][cell.getCol()] = null;
+      int[][] nextGuess = copy(initialValues);
+      nextGuess[cell.getRow()][cell.getCol()] = 0;
       try {
         new CleverSolver(nextGuess).solve();
         candidates.put(cell, nextGuess);

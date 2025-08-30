@@ -52,7 +52,7 @@ public class PdfBuilder {
     System.out.println(cellFont.getSize());
   }
 
-  public byte[] build(List<Pair<Integer[][], List<String>>> tables) {
+  public byte[] build(List<Pair<int[][], List<String>>> tables) {
     try {
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
       Document document = new Document();
@@ -63,7 +63,7 @@ public class PdfBuilder {
       layout.setTotalWidth(pageWidth);
       layout.setLockedWidth(true);
 
-      List<Pair<Integer[][], List<String>>> tablesSized = new ArrayList<>(tables);
+      List<Pair<int[][], List<String>>> tablesSized = new ArrayList<>(tables);
       while (tablesSized.size() % tablesPerLine != 0) {
         tablesSized.add(null);
       }
@@ -108,7 +108,7 @@ public class PdfBuilder {
     return summary;
   }
 
-  private PdfPTable createTable(Integer[][] matrix) {
+  private PdfPTable createTable(int[][] matrix) {
     PdfPTable table = new PdfPTable(tableSize);
     table.setTotalWidth(tableWidth);
     table.setLockedWidth(true);

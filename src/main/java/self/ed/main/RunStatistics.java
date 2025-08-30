@@ -121,7 +121,7 @@ public class RunStatistics {
   private static void buildExtendedStatisticsFile() {
     Path outFile = DATA_DIR.resolve("statistics-extended.txt");
 
-    List<Integer[][]> tables = streamFiles(READY_DIR)
+    List<int[][]> tables = streamFiles(READY_DIR)
         .map(FileUtils::readFile)
         .flatMap(file -> stream(file.split("\n")))
         .map(String::trim)
@@ -136,7 +136,7 @@ public class RunStatistics {
           System.out.println(progress.incrementAndGet() + "/" + tables.size());
           StatisticsCaptor statistics = new StatisticsCaptor();
           long startTime = currentTimeMillis();
-          Integer[][] solution = new CleverSolver(table, statistics).solve();
+          int[][] solution = new CleverSolver(table, statistics).solve();
           long time = currentTimeMillis() - startTime;
           maxTime.getAndAccumulate(time, Math::max);
           return new StatisticsWrapper(toString1D(table), toString1D(solution), time, statistics);

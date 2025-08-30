@@ -36,11 +36,11 @@ public class Generator {
     this.values = rangeClosed(1, size).boxed().collect(toSet());
   }
 
-  public Integer[][] generate() {
-    return generate(new Integer[size][size]);
+  public int[][] generate() {
+    return generate(new int[size][size]);
   }
 
-  private Integer[][] generate(Integer[][] initialValues) {
+  private int[][] generate(int[][] initialValues) {
     if (countOpen(initialValues) > complexityLowerLimit) {
       throw new ComplexityLimitException();
     }
@@ -53,9 +53,9 @@ public class Generator {
       List<Cell> pending = new ArrayList<>();
       for (int row = 0; row < size; row++) {
         for (int col = 0; col < size; col++) {
-          Integer value = initialValues[row][col];
+          int value = initialValues[row][col];
           int block = blockSize * (row / blockSize) + col / blockSize;
-          if (value != null) {
+          if (value != 0) {
             open.add(new Cell(row, col, block, singleton(value)));
           } else {
             pending.add(new Cell(row, col, block, Set.of()));
@@ -65,7 +65,7 @@ public class Generator {
 
       shuffle(pending);
       for (Cell cell : pending) {
-        Integer[][] nextGuess = copy(initialValues);
+        int[][] nextGuess = copy(initialValues);
         List<Integer> values = new ArrayList<>(this.values);
         open.stream().filter(cell::isRelated).map(Cell::getCandidate).forEach(values::remove);
         shuffle(values);

@@ -38,7 +38,7 @@ public class CleverSolver {
   private final List<Cell> pendingCells = new ArrayList<>();
   private final List<Value> pendingValues = new ArrayList<>();
 
-  public CleverSolver(Integer[][] initialValues, Visitor... visitors) {
+  public CleverSolver(int[][] initialValues, Visitor... visitors) {
     this.visitors = visitors;
     size = initialValues.length;
     int blockSize = (int) Math.sqrt(size);
@@ -52,8 +52,8 @@ public class CleverSolver {
         int block = blockSize * (row / blockSize) + col / blockSize;
         Cell cell = new Cell(row, col, block);
         allCells.add(cell);
-        Integer value = initialValues[row][col];
-        if (value != null) {
+        int value = initialValues[row][col];
+        if (value != 0) {
           openCells.put(cell, valueMap.get(value));
         }
       }
@@ -67,7 +67,7 @@ public class CleverSolver {
     openCells.forEach(Cell::open);
   }
 
-  public Integer[][] solve() {
+  public int[][] solve() {
     if (Thread.interrupted()) {
       throw new TimeLimitException();
     }
@@ -113,7 +113,7 @@ public class CleverSolver {
     throw new CannotOpenWithoutGuessingException(cell, value);
   }
 
-  private Integer[][] solveWithGuess(Cell cell, Value value) {
+  private int[][] solveWithGuess(Cell cell, Value value) {
     Collection<Cell> guessCells;
     Collection<Value> guessValues;
     if (cell.countCandidates() <= value.countCandidates()) {
@@ -124,12 +124,12 @@ public class CleverSolver {
       guessValues = singletonList(value);
     }
 
-    List<Integer[][]> solutions = new ArrayList<>();
+    List<int[][]> solutions = new ArrayList<>();
     notifyGuessing(visitors, guessCells.size() * guessValues.size());
     // System.out.println("Guessing out of " + guessCells.size() * guessValues.size());
     for (Cell guessCell : guessCells) {
       for (Value guessValue : guessValues) {
-        Integer[][] nextGuess = copyState();
+        int[][] nextGuess = copyState();
         nextGuess[guessCell.getRow()][guessCell.getCol()] = guessValue.getValue();
         try {
           solutions.add(new CleverSolver(nextGuess, visitors).solve());
@@ -150,8 +150,8 @@ public class CleverSolver {
     return solutions.getFirst();
   }
 
-  private Integer[][] copyState() {
-    Integer[][] state = new Integer[size][size];
+  private int[][] copyState() {
+    int[][] state = new int[size][size];
     allCells.forEach(cell -> state[cell.getRow()][cell.getCol()] = cell.getValue());
     return state;
   }
@@ -206,8 +206,8 @@ public class CleverSolver {
       return candidates.iterator().next();
     }
 
-    Integer getValue() {
-      return ofNullable(value).map(Value::getValue).orElse(null);
+    int getValue() {
+      return ofNullable(value).map(Value::getValue).orElse(0);
     }
   }
 
@@ -215,7 +215,7 @@ public class CleverSolver {
   private class Value {
 
     @Getter
-    private final Integer value;
+    private final int value;
     private final Collection<Cell> cells = new ArrayList<>();
     private final Collection<Collection<Cell>> candidates = new ArrayList<>();
 

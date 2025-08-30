@@ -7,8 +7,8 @@ import static java.util.stream.Collectors.joining;
 import static self.ed.main.DataDirs.DATA_DIR;
 import static self.ed.util.FileUtils.readFile;
 import static self.ed.util.FileUtils.writeFile;
-import static self.ed.util.SudokuUtils.getCurrentTime;
 import static self.ed.util.SudokuUtils.fromString1D;
+import static self.ed.util.SudokuUtils.getCurrentTime;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -34,16 +34,16 @@ public class RunPdfBuilder {
     Path outSolutionFile = DATA_DIR.resolve(getCurrentTime() + "-solution.pdf");
 
     AtomicLong counter = new AtomicLong();
-    List<Triple<Integer[][], List<String>, Integer[][]>> tables = stream(readFile(inFile).split("\n"))
+    List<Triple<int[][], List<String>, int[][]>> tables = stream(readFile(inFile).split("\n"))
         .map(line -> fromString1D(line.split("\\|")[0].trim()))
         .map(table -> buildTableData(counter.incrementAndGet(), table))
         .toList();
 
-    List<Pair<Integer[][], List<String>>> inputTables = tables.stream()
+    List<Pair<int[][], List<String>>> inputTables = tables.stream()
         .map(triple -> Pair.of(triple.getLeft(), triple.getMiddle()))
         .toList();
 
-    List<Pair<Integer[][], List<String>>> outputTables = tables.stream()
+    List<Pair<int[][], List<String>>> outputTables = tables.stream()
         .map(triple -> Pair.of(triple.getRight(), triple.getMiddle()))
         .toList();
 
@@ -51,9 +51,9 @@ public class RunPdfBuilder {
     writeFile(outSolutionFile, new PdfBuilder(4).build(outputTables));
   }
 
-  private static Triple<Integer[][], List<String>, Integer[][]> buildTableData(long id, Integer[][] input) {
+  private static Triple<int[][], List<String>, int[][]> buildTableData(long id, int[][] input) {
     StatisticsCaptor statistics = new StatisticsCaptor();
-    Integer[][] output = new CleverSolver(input, statistics).solve();
+    int[][] output = new CleverSolver(input, statistics).solve();
     String complexity = Stream.of(
         input.length * input.length - statistics.getInitial(),
         statistics.getMinGuesses(),
