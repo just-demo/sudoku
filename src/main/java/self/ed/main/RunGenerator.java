@@ -93,7 +93,7 @@ public class RunGenerator {
               return ExceptionUtils.indexOfType(e, ComplexityLimitException.class) > -1 ? 200L : 100L;
             }
           })
-          //.filter(openCount -> openCount < 100)
+          .filter(openCount -> openCount < 100)
           .limit(10)
           .collect(groupingBy(Function.identity(), TreeMap::new, counting()));
     }

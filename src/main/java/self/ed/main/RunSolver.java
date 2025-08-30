@@ -6,8 +6,8 @@ import static java.util.Arrays.stream;
 import static self.ed.main.DataDirs.READY_DIR;
 import static self.ed.util.FileUtils.readFile;
 import static self.ed.util.FileUtils.streamFiles;
-import static self.ed.util.SudokuUtils.toString2D;
 import static self.ed.util.SudokuUtils.fromString1D;
+import static self.ed.util.SudokuUtils.toString2D;
 
 import java.io.File;
 import java.util.LinkedHashMap;
@@ -21,14 +21,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import self.ed.solver.CleverSolver;
-import self.ed.solver.SimpleSolver;
 import self.ed.util.SudokuUtils;
 
 public class RunSolver {
 
   public static void main(String[] args) {
     solveSingleComplexSudoku();
-//    solveReadySudoku();
+//    solveAllReadySudoku();
   }
 
   private static void solveSingleComplexSudoku() {
@@ -40,7 +39,7 @@ public class RunSolver {
     System.out.println("Time: " + (currentTimeMillis() - start));
   }
 
-  private static void solveMultipleReadySudoku() {
+  private static void solveAllReadySudoku() {
     List<File> files = streamFiles(READY_DIR).sorted().toList();
     Map<String, Long> counts = files.stream()
         .collect(Collectors.toMap(File::getName, RunSolver::countLines));
@@ -52,7 +51,7 @@ public class RunSolver {
     Map<String, Pair<Long, Long>> statistics = new LinkedHashMap<>();
     for (File file : files) {
       long fileStart = currentTimeMillis();
-      long fileCount = streamLines(file).map(SudokuUtils::fromString1D).map(sudoku -> {
+      long fileCount = streamLines(file).map(SudokuUtils::fromString1D).peek(sudoku -> {
         long progress = counter.incrementAndGet();
         if (progress % 1_000 == 0) {
           System.out.println("progress: " + progress + " / " + ((currentTimeMillis() - start) / 1000) + "s");
@@ -60,8 +59,7 @@ public class RunSolver {
         if (progress > 10_000) {
           throw new RuntimeException("stopped");
         }
-//        return new CleverSolver(sudoku).solve();
-        return new SimpleSolver(sudoku).solve();
+        new CleverSolver(sudoku).solve();
       }).count();
       long fileEnd = currentTimeMillis();
       statistics.put(file.getName(), Pair.of(fileCount, fileEnd - fileStart));
