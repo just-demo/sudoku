@@ -11,11 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import lombok.Value;
 import just.demo.exception.ComplexityLimitException;
 import just.demo.exception.MultipleSolutionsException;
 import just.demo.exception.NoSolutionException;
-import just.demo.solver.ComplexSolver;
+import just.demo.solver.Solver;
+import lombok.Value;
 
 public class Generator {
 
@@ -23,10 +23,6 @@ public class Generator {
   private final int complexityLowerLimit;
   private final int blockSize;
   private final Set<Integer> values;
-
-  public Generator(int size) {
-    this(size, size * size);
-  }
 
   public Generator(int size, int complexityLowerLimit) {
     this.size = size;
@@ -45,7 +41,7 @@ public class Generator {
     }
 
     try {
-      new ComplexSolver(initialValues).solve();
+      new Solver(initialValues).solve();
       return initialValues;
     } catch (MultipleSolutionsException e) {
       List<Cell> open = new ArrayList<>();

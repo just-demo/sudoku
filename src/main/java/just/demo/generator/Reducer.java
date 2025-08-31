@@ -16,7 +16,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import lombok.Value;
 import just.demo.exception.MultipleSolutionsException;
-import just.demo.solver.ComplexSolver;
+import just.demo.solver.Solver;
 
 public class Reducer {
 
@@ -40,7 +40,7 @@ public class Reducer {
       int[][] nextGuess = copy(initialValues);
       nextGuess[cell.getRow()][cell.getCol()] = 0;
       try {
-        new ComplexSolver(nextGuess).solve();
+        new Solver(nextGuess).solve();
         candidates.put(cell, nextGuess);
       } catch (MultipleSolutionsException e) {
         // no-op

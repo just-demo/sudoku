@@ -2,7 +2,6 @@ package just.demo.generator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import static just.demo.util.FileUtils.readClasspathFile;
 import static just.demo.util.SudokuUtils.countOpen;
 import static just.demo.util.SudokuUtils.fromString2D;
 import static just.demo.util.SudokuUtils.toString2D;
@@ -21,21 +20,57 @@ public class ReducerTest {
 
   @Test
   void reduce_alreadyMinimal() {
-    int[][] input = fromString2D(readClasspathFile("input-21.txt"));
+    String inputData = """
+        . . . 8 7 . . . .
+        . . . . . . . 5 9
+        3 . . 1 . . . . .
+        . . . . 4 . 2 1 .
+        5 8 . 7 . . . . .
+        6 . . . . . . . 4
+        . 2 . . 5 . 8 . .
+        . . . . 3 4 . 9 .
+        . . . . . . . 3 .
+        """;
+
+    int[][] input = fromString2D(inputData);
     int[][] output = reducer.reduce(input);
     assertEquals(toString2D(input), toString2D(output));
   }
 
   @Test
   void reduce_minusOne() {
-    int[][] input = fromString2D(readClasspathFile("input-22.txt"));
+    String inputData = """
+        . 5 4 . 1 3 . . .
+        6 . . . . . . . 2
+        . . . . . 5 . 7 .
+        . 8 . 2 . . 7 . .
+        4 . . . . . . . .
+        . . 6 . . . 9 . 1
+        . . 2 . . . 6 . .
+        . . 1 . 4 . . 8 .
+        . . . . . 8 5 . .
+        """;
+
+    int[][] input = fromString2D(inputData);
     int[][] output = reducer.reduce(input);
     assertEquals(countOpen(input) - 1, countOpen(output));
   }
 
   @Test
   void reduce_minusTwo() {
-    int[][] input = fromString2D(readClasspathFile("input-24.txt"));
+    String inputData = """
+        2 . 9 . . . 3 . .
+        . . . . 2 4 6 . .
+        1 . . . 7 . . 5 .
+        . 1 . . . . . . .
+        3 4 . . . . . 7 .
+        . 5 . . . . 9 4 8
+        4 . . . . 8 . . .
+        . . . 6 . . . . .
+        . 2 . 3 5 . . 6 .
+        """;
+
+    int[][] input = fromString2D(inputData);
     int[][] output = reducer.reduce(input);
     assertEquals(countOpen(input) - 2, countOpen(output));
   }

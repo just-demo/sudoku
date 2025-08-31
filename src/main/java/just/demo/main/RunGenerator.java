@@ -12,12 +12,13 @@ import static just.demo.main.DataDirs.REDUCER_FAILED_DIR;
 import static just.demo.util.FileUtils.appendFile;
 import static just.demo.util.FileUtils.writeFile;
 import static just.demo.util.SudokuUtils.countOpen;
-import static just.demo.util.SudokuUtils.getCurrentTime;
 import static just.demo.util.SudokuUtils.toString1D;
 import static just.demo.util.SudokuUtils.toString2D;
 
 import java.nio.file.Path;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
+import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
@@ -100,5 +101,9 @@ public class RunGenerator {
 
     System.out.println(counts);
     System.out.println("Time: " + (currentTimeMillis() - start) / 1000d);
+  }
+
+  private static String getCurrentTime() {
+    return new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
   }
 }

@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.stream.Stream;
 
 import lombok.experimental.UtilityClass;
@@ -70,14 +69,6 @@ public class FileUtils {
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
-  }
-
-  public static List<File> listFiles(File dir) {
-    return streamFiles(dir).toList();
-  }
-
-  public static List<File> listFiles(Path dir) {
-    return listFiles(dir.toFile());
   }
 
   public static Stream<File> streamFiles(File dir) {

@@ -4,9 +4,6 @@ import static java.lang.Integer.parseInt;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 public class SudokuUtils {
 
   private static final String EMPTY_AS_STRING = ".";
@@ -68,13 +65,5 @@ public class SudokuUtils {
 
   private static String cellToString(int cell) {
     return cell == 0 ? EMPTY_AS_STRING : String.valueOf(cell);
-  }
-
-  public static String getCurrentTime() {
-    return new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
-  }
-
-  public static String join(String delimiter, Object... items) {
-    return stream(items).map(Object::toString).collect(joining(delimiter));
   }
 }
