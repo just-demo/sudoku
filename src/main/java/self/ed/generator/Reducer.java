@@ -11,12 +11,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import lombok.Value;
 import self.ed.exception.MultipleSolutionsException;
-import self.ed.solver.Cell;
 import self.ed.solver.CleverSolver;
 
 public class Reducer {
@@ -27,7 +26,7 @@ public class Reducer {
     for (int row = 0; row < size; row++) {
       for (int col = 0; col < size; col++) {
         if (initialValues[row][col] != 0) {
-          open.add(new Cell(row, col, 0, Set.of()));
+          open.add(new Cell(row, col));
         }
       }
     }
@@ -59,5 +58,12 @@ public class Reducer {
         .min(comparingByValue())
         .map(Pair::getKey)
         .orElse(initialValues);
+  }
+
+  @Value
+  private static class Cell {
+
+    int row;
+    int col;
   }
 }

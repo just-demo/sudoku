@@ -5,7 +5,6 @@ import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 
 public class SudokuUtils {
@@ -53,11 +52,7 @@ public class SudokuUtils {
   }
 
   public static int[][] copy(int[][] source) {
-    int[][] target = new int[source.length][];
-    for (int row = 0; row < source.length; row++) {
-      target[row] = Arrays.copyOf(source[row], source[row].length);
-    }
-    return target;
+    return stream(source).map(int[]::clone).toArray(int[][]::new);
   }
 
   private static int[] parseLine2D(String line) {

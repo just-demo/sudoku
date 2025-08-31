@@ -13,10 +13,12 @@ import static self.ed.visitor.Visitor.notifyOpeningCell;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import lombok.Getter;
 import self.ed.exception.MultipleSolutionsException;
 import self.ed.exception.NoSolutionException;
 import self.ed.exception.TimeLimitException;
@@ -95,5 +97,37 @@ public class SimpleSolver {
     solution[cell.getRow()][cell.getCol()] = value;
     pendingCells.remove(cell);
     pendingCells.stream().filter(cell::isRelated).forEach(pend -> pend.removeCandidate(value));
+  }
+
+  @Getter
+  private static class Cell {
+
+    private final int row;
+    private final int col;
+    private final int block;
+    private final Set<Integer> candidates;
+
+    public Cell(int row, int col, int block, Set<Integer> candidates) {
+      this.row = row;
+      this.col = col;
+      this.block = block;
+      this.candidates = new HashSet<>(candidates);
+    }
+
+    public boolean isRelated(Cell cell) {
+      return row == cell.row || col == cell.col || block == cell.block;
+    }
+
+    public void removeCandidate(Integer value) {
+      candidates.remove(value);
+    }
+
+    public int countCandidates() {
+      return candidates.size();
+    }
+
+    public Integer getCandidate() {
+      return candidates.iterator().next();
+    }
   }
 }

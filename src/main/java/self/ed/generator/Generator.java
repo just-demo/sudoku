@@ -1,7 +1,6 @@
 package self.ed.generator;
 
 import static java.util.Collections.shuffle;
-import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.IntStream.rangeClosed;
 
@@ -12,10 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import lombok.Value;
 import self.ed.exception.ComplexityLimitException;
 import self.ed.exception.MultipleSolutionsException;
 import self.ed.exception.NoSolutionException;
-import self.ed.solver.Cell;
 import self.ed.solver.CleverSolver;
 
 public class Generator {
@@ -55,10 +54,11 @@ public class Generator {
         for (int col = 0; col < size; col++) {
           int value = initialValues[row][col];
           int block = blockSize * (row / blockSize) + col / blockSize;
+          Cell cell = new Cell(row, col, block, value);
           if (value != 0) {
-            open.add(new Cell(row, col, block, singleton(value)));
+            open.add(cell);
           } else {
-            pending.add(new Cell(row, col, block, Set.of()));
+            pending.add(cell);
           }
         }
       }
@@ -67,7 +67,7 @@ public class Generator {
       for (Cell cell : pending) {
         int[][] nextGuess = copy(initialValues);
         List<Integer> values = new ArrayList<>(this.values);
-        open.stream().filter(cell::isRelated).map(Cell::getCandidate).forEach(values::remove);
+        open.stream().filter(cell::isRelated).map(Cell::getValue).forEach(values::remove);
         shuffle(values);
         for (Integer value : values) {
           nextGuess[cell.getRow()][cell.getCol()] = value;
@@ -79,6 +79,19 @@ public class Generator {
         }
       }
       throw new NoSolutionException();
+    }
+  }
+
+  @Value
+  private static class Cell {
+
+    int row;
+    int col;
+    int block;
+    int value;
+
+    public boolean isRelated(Cell cell) {
+      return row == cell.row || col == cell.col || block == cell.block;
     }
   }
 }
