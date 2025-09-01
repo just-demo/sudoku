@@ -1,6 +1,5 @@
 package just.demo.util;
 
-import static java.lang.ClassLoader.getSystemResourceAsStream;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.createDirectories;
 import static java.nio.file.Files.readString;
@@ -20,14 +19,6 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class FileUtils {
-
-  public static String readClasspathFile(String fileName) {
-    try {
-      return new String(getSystemResourceAsStream(fileName).readAllBytes(), UTF_8);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
-  }
 
   public static String readFile(File file) {
     return readFile(file.toPath());

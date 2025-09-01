@@ -51,8 +51,8 @@ public class Solver {
 
     pendingCells.addAll(allCells);
     pendingValues.addAll(valueMap.values());
-    pendingCells.forEach(cell -> cell.addCandidates(pendingValues));
-    pendingValues.forEach(value -> value.addCandidates(pendingCells));
+    pendingCells.forEach(cell -> cell.setCandidates(pendingValues));
+    pendingValues.forEach(value -> value.setCandidates(pendingCells));
     openCells.forEach(Cell::open);
   }
 
@@ -154,7 +154,7 @@ public class Solver {
     private Value value;
     private Collection<Value> candidates;
 
-    void addCandidates(Collection<Value> candidates) {
+    void setCandidates(Collection<Value> candidates) {
       this.candidates = new ArrayList<>(candidates);
     }
 
@@ -199,7 +199,7 @@ public class Solver {
     private final Collection<Cell> cells = new ArrayList<>();
     private final Collection<Collection<Cell>> candidates = new ArrayList<>();
 
-    void addCandidates(Collection<Cell> candidates) {
+    void setCandidates(Collection<Cell> candidates) {
       this.candidates.addAll(candidates.stream().collect(groupingBy(Cell::getRow)).values());
       this.candidates.addAll(candidates.stream().collect(groupingBy(Cell::getCol)).values());
       this.candidates.addAll(candidates.stream().collect(groupingBy(Cell::getBlock)).values());
