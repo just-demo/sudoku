@@ -1,8 +1,9 @@
 package just.demo.main;
 
 import static java.lang.Long.MAX_VALUE;
+import static java.lang.Runtime.getRuntime;
 import static java.lang.System.currentTimeMillis;
-import static java.util.concurrent.Executors.newSingleThreadExecutor;
+import static java.util.concurrent.Executors.newFixedThreadPool;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
@@ -34,7 +35,7 @@ import just.demo.generator.Reducer;
 
 public class RunGenerator {
 
-  private static final Duration GENERATOR_TIMEOUT = Duration.ofSeconds(3);
+  private static final Duration GENERATOR_TIMEOUT = Duration.ofSeconds(5);
   private static final Duration REDUCER_TIMEOUT = Duration.ofMinutes(10);
 
   public static void main(String[] args) {
@@ -45,7 +46,9 @@ public class RunGenerator {
     long start = currentTimeMillis();
     Path reducerFailedDir = REDUCER_FAILED_DIR.resolve(getCurrentTime());
     Map<Long, Long> counts;
-    try (ExecutorService executor = newSingleThreadExecutor()) {
+//    try (ExecutorService executor = newSingleThreadExecutor()) {
+//    try (ExecutorService executor = newFixedThreadPool(getRuntime().availableProcessors())) {
+    try (ExecutorService executor = newFixedThreadPool(4)) {
       Generator generator = new Generator(9, 31);
       Reducer reducer = new Reducer();
 
@@ -84,7 +87,9 @@ public class RunGenerator {
                   successPercentage + "%");
               System.out.println(toString2D(result));
               Path readyFile = READY_DIR.resolve(openCount + ".txt");
-              appendFile(readyFile.toFile(), toString1D(result) + "\n");
+              synchronized (RunGenerator.class) {
+                appendFile(readyFile.toFile(), toString1D(result) + "\n");
+              }
               System.out.println("------------------");
               return openCount;
             } catch (Exception e) {
@@ -93,8 +98,9 @@ public class RunGenerator {
               return ExceptionUtils.indexOfType(e, ComplexityLimitException.class) > -1 ? 200L : 100L;
             }
           })
+          .parallel()
           .filter(openCount -> openCount < 100)
-          .limit(10)
+//          .limit(100_000)
           .collect(groupingBy(Function.identity(), TreeMap::new, counting()));
     }
 
